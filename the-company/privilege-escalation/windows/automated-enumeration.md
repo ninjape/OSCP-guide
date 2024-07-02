@@ -104,7 +104,7 @@ PS C:\Users\dave> $ModifiableFiles
 ```
 {% endcode %}
 
-### [#powerup.ps1](unquoted-service-path.md#powerup.ps1 "mention")
+### [#powerup.ps1](unquoted-service-path.md#powerup.ps1 "mention") - link to Unquoted Service Path
 
 ### Old
 
