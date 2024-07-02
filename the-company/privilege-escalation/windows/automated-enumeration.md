@@ -39,7 +39,7 @@ PS:> iwr -uri http://192.168.45.189/Seatbelt.exe -Outfile Seatbelt.exe
 
 ## PowerUp
 
-
+### PWK2024
 
 {% code title="Import PowerUp.ps1 and execute Get-ModifiableServiceFile" overflow="wrap" lineNumbers="true" %}
 ```
@@ -103,6 +103,10 @@ PS C:\Users\dave> $ModifiableFiles = echo 'C:\xampp\mysql\bin\mysqld.exe argumen
 PS C:\Users\dave> $ModifiableFiles
 ```
 {% endcode %}
+
+### [#powerup.ps1](unquoted-service-path.md#powerup.ps1 "mention")
+
+### Old
 
 PowerUp is a PowerShell script that searches common privilege escalation on the target system. You can run it with the `Invoke-AllChecks` option that will perform all possible checks on the target system or use it to conduct specific checks (e.g. the `Get-UnquotedService` option to only look for potential unquoted service path vulnerabilities).
 
