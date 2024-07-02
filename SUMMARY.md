@@ -80,7 +80,7 @@
   * [Processes monitor](the-company/privilege-escalation/processes-monitor.md)
   * [Windows](the-company/privilege-escalation/windows/README.md)
     * [Enumerating Windows](the-company/privilege-escalation/windows/enumerating-windows.md)
-    * [Tools of the trade](the-company/privilege-escalation/windows/tools-of-the-trade.md)
+    * [Automated Enumeration](the-company/privilege-escalation/windows/automated-enumeration.md)
     * [Vulnerable software](the-company/privilege-escalation/windows/vulnerable-software.md)
     * [DLL Hijacking](the-company/privilege-escalation/windows/dll-hijacking.md)
     * [Unquoted Service Path](the-company/privilege-escalation/windows/unquoted-service-path.md)
