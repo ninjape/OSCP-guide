@@ -1,0 +1,4 @@
+# Linux
+
+* Kernel exploits
+* Sudo
