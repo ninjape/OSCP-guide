@@ -182,6 +182,8 @@ The command above can be broken down as follows;
 
 ## RunAs
 
+If you encounter any issues while using RunAs, you can try running an Administrator command prompt and entering the credentials for user backupadmin to obtain a shell.
+
 {% code title="Run cmd as a different user" overflow="wrap" lineNumbers="true" %}
 ```
 runas /user:backupadmin cmd

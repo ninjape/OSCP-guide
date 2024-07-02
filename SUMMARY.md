@@ -81,6 +81,7 @@
   * [Windows](the-company/privilege-escalation/windows/README.md)
     * [Enumerating Windows](the-company/privilege-escalation/windows/enumerating-windows.md)
     * [Automated Enumeration](the-company/privilege-escalation/windows/automated-enumeration.md)
+    * [Service binary hijacking](the-company/privilege-escalation/windows/service-binary-hijacking.md)
     * [Vulnerable software](the-company/privilege-escalation/windows/vulnerable-software.md)
     * [DLL Hijacking](the-company/privilege-escalation/windows/dll-hijacking.md)
     * [Unquoted Service Path](the-company/privilege-escalation/windows/unquoted-service-path.md)
