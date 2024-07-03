@@ -14,7 +14,9 @@ Doing further research on token impersonation vulnerabilities, you will see a nu
 Other privileges that may lead to privilege escalation are _SeBackupPrivilege_, _SeAssignPrimaryToken_, _SeLoadDriver_, and _SeDebug_. In this section, we'll closely inspect privilege escalation vectors in the context of _SeImpersonatePrivilege_.
 {% endhint %}
 
-## PWK2024 - SeImpersonatePrivilege
+## PWK2024&#x20;
+
+## SeImpersonatePrivilege
 
 {% code title="" overflow="wrap" lineNumbers="true" %}
 ```
