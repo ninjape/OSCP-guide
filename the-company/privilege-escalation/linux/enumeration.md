@@ -15,6 +15,7 @@ uname -a
 ps aux
 ps -A
 ps axjf
+watch -n 1 "ps -aux | grep pass"
 
 cat /proc/version
 ip a
@@ -24,6 +25,7 @@ ls -lah /etc/cron*
 crontab -l
 sudo crontab -l
 dpkg -l
+sudo tcpdump -i lo -A | grep "pass"
 ```
 
 {% code title="Listing all world writable directories" %}
