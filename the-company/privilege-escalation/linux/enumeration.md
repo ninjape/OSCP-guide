@@ -4,19 +4,83 @@
 
 ## Enumeration
 
-* `hostname`
-* `uname -a ### find kernel version`
-* `cat /proc/version ###`proc filesystem (procfs) provides information about the target system processes.
-* cat /etc/issue ### info about the OS
-* ps -A ### view all running processes
-* ps axjf ### view process tree
-* ps aux ### show process for all users (a), display the user that launched the process (u), and show processes that are not attached to a terminal (x)
+```
+id
+cat /etc/passwd
+hostname
+cat /etc/issue
+cat /etc/os-release
+uname -a
+
+ps aux
+ps -A
+ps axjf
+
+cat /proc/version
+ip a
+ss -anp
+cat /etc/iptables/rules.v4
+ls -lah /etc/cron*
+crontab -l
+sudo crontab -l
+dpkg -l
+```
+
+{% code title="Listing all world writable directories" %}
+```
+find / -writable -type d 2>/dev/null
+```
+{% endcode %}
+
+{% code title="Listing content of /etc/fstab and all mounted drives" %}
+```
+cat /etc/fstab
+mount
+```
+{% endcode %}
+
+{% code title="Listing all available drives using lsblk" %}
+```
+lsblk
+```
+{% endcode %}
+
+```
+joe@debian-privesc:~$ lsmod
+Module                  Size  Used by
+binfmt_misc            20480  1
+rfkill                 28672  1
+sb_edac                24576  0
+crct10dif_pclmul       16384  0
+crc32_pclmul           16384  0
+ghash_clmulni_intel    16384  0
+vmw_balloon            20480  0
+...
+drm                   495616  5 vmwgfx,drm_kms_helper,ttm
+libata                270336  2 ata_piix,ata_generic
+vmw_pvscsi             28672  2
+scsi_mod              249856  5 vmw_pvscsi,sd_mod,libata,sg,sr_mod
+i2c_piix4              24576  0
+button                 20480  0
+
+```
+
+{% code title="Displaying additional information about a module" %}
+```
+/sbin/modinfo libata
+```
+{% endcode %}
+
+{% code title="Searching for SUID files" %}
+```
+find / -perm -u=s -type f 2>/dev/null
+```
+{% endcode %}
+
 * env ### show environmental variables
 
 ![](https://i.imgur.com/LWdJ8Fw.png)
 
-* ls -lah
-* id \<user>
 * cat /etc/passwd
   *   While the output can be long and a bit intimidating, it can easily be cut and converted to a useful list for brute-force attacks.
 
