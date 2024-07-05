@@ -71,6 +71,7 @@
   * [Linux](the-company/privilege-escalation/linux/README.md)
     * [Enumeration](the-company/privilege-escalation/linux/enumeration.md)
     * [Automated enumeration tools](the-company/privilege-escalation/linux/automated-enumeration-tools.md)
+    * [Abusing Password Authentication](the-company/privilege-escalation/linux/abusing-password-authentication.md)
     * [Sudo](the-company/privilege-escalation/linux/sudo.md)
     * [SUID](the-company/privilege-escalation/linux/suid.md)
     * [Capabilities](the-company/privilege-escalation/linux/capabilities.md)
