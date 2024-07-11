@@ -28,9 +28,10 @@ dpkg -l
 sudo tcpdump -i lo -A | grep "pass"
 ```
 
-{% code title="Listing all world writable directories" %}
+{% code title="Listing all world writable directories and/or files" %}
 ```
 find / -writable -type d 2>/dev/null
+find / -writable -type f 2>/dev/null
 ```
 {% endcode %}
 
