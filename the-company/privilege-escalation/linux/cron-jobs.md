@@ -12,6 +12,10 @@ Aug 25 04:59:01 debian-privesc CRON[1223]: (root) CMD (/bin/bash /home/joe/.scri
 ```
 {% endcode %}
 
+```
+ls -lah /etc/cron*
+```
+
 {% code title="Showing the content and permissions of the user_backups.sh script" overflow="wrap" lineNumbers="true" %}
 ```
 joe@debian-privesc:~$ cat /home/joe/.scripts/user_backups.sh
