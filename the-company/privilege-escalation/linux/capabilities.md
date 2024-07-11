@@ -5,6 +5,10 @@ The capabilities man page provides detailed information on its usage and options
 \
 We can use the `getcap` tool to list enabled capabilities.
 
+```
+getcap -r / 2>/dev/null
+```
+
 ![](https://i.imgur.com/Q6XYr0p.png)
 
 When run as an unprivileged user, `getcap -r /` will generate a huge amount of errors, so it is good practice to redirect the error messages to /dev/null.\
