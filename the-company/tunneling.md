@@ -2,7 +2,19 @@
 
 ##
 
-## Local Port Forwarding
+## SSH Local Port Forwarding
+
+```
+ssh -N -L 0.0.0.0:4455:172.16.50.217:445 database_admin@10.4.50.215
+```
+
+
+
+{% code title="nc port scan" overflow="wrap" lineNumbers="true" %}
+```
+for i in $(seq 1 254); do nc -zv -w 1 172.16.50.$i 445; done
+```
+{% endcode %}
 
 So when you want to reach a port that is open only on the victim machine, but not from your attack host, you will use local port forwarding.
 
@@ -10,7 +22,19 @@ So when you want to reach a port that is open only on the victim machine, but no
 ssh -L 1234:localhost:5432 user@{target_IP}
 ```
 
+### Socat
 
+{% code title="on the victim -Running the Socat port forward command." overflow="wrap" lineNumbers="true" %}
+```
+socat -ddd TCP-LISTEN:2345,fork TCP:10.4.50.215:5432
+```
+{% endcode %}
+
+{% code title="On the kali box - Connecting to the PGDATABASE01 PostgreSQL service and listing databases using psql, through our port forward." overflow="wrap" lineNumbers="true" %}
+```
+psql -h 192.168.50.63 -p 2345 -U postgres
+```
+{% endcode %}
 
 ##
 
