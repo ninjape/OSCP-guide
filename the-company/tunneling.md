@@ -4,17 +4,27 @@
 
 ## SSH Local Port Forwarding
 
-```
-ssh -N -L 0.0.0.0:4455:172.16.50.217:445 database_admin@10.4.50.215
-```
-
-
-
 {% code title="nc port scan" overflow="wrap" lineNumbers="true" %}
 ```
 for i in $(seq 1 254); do nc -zv -w 1 172.16.50.$i 445; done
 ```
 {% endcode %}
+
+The below command is run on Server A to create the SSH tunnel through Server B and reach Server C.&#x20;
+
+{% code title="the command is run on Server A" overflow="wrap" lineNumbers="true" %}
+```
+ssh -N -L 0.0.0.0:4455:172.16.167.217:445 database_admin@10.4.167.215
+```
+{% endcode %}
+
+kali -> (Server A) 192.168.167.63 -> (Server B) 10.4.167.215->(Server C) 172.16.167.217&#x20;
+
+Now from Kali VM we can reach Server C and access the SMB Server.
+
+```
+smbclient -p 4455 -L //192.168.50.63/ -U hr_admin --password=Welcome1234
+```
 
 So when you want to reach a port that is open only on the victim machine, but not from your attack host, you will use local port forwarding.
 
