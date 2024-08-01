@@ -46,7 +46,29 @@ psql -h 192.168.50.63 -p 2345 -U postgres
 ```
 {% endcode %}
 
-##
+## SSH Dynamic Port Forwarding
+
+```
+ssh -N -D 0.0.0.0:9999 database_admin@10.4.50.215
+```
+
+```
+kali@kali:~$ tail /etc/proxychains4.conf
+#       proxy types: http, socks4, socks5, raw
+#         * raw: The traffic is simply forwarded to the proxy without modification.
+#        ( auth types supported: "basic"-http  "user/pass"-socks )
+#
+[ProxyList]
+# add proxy here ...
+# meanwile
+# defaults set to "tor"
+socks5 192.168.50.63 9999
+```
+
+```
+proxychains smbclient -L //172.16.50.217/ -U hr_admin --password=Welcome1234
+proxychains nmap -vvv -sT --top-ports=20 -Pn 172.16.50.217
+```
 
 ## Reverse tunnel to attack host
 
