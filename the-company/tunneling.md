@@ -144,6 +144,14 @@ socks5 127.0.0.1 9998
 proxychains nmap -vvv -sT --top-ports=20 -Pn -n 10.4.50.64
 ```
 
+## SSHuttle
+
+In situations where we have direct access to an SSH server, behind which is a more complex internal network, classic dynamic port forwarding might be difficult to manage. sshuttle1 is a tool that turns an SSH connection into something similar to a VPN by setting up local routes that force traffic through the SSH tunnel. However, it requires root privileges on the SSH client and Python3 on the SSH server, so it's not always the most lightweight option. In the appropriate scenario, however, it can be very useful.
+
+```
+sshuttle -r database_admin@192.168.50.63:2222 10.4.50.0/24 172.16.50.0/24
+```
+
 ## Reverse tunnel to attack host
 
 UserKnownHostsFile=/dev/null and StrictHostKeyChecking=no. The first option prevents ssh from attempting to save the host key by sending the output to /dev/null. The second option will instruct ssh to not prompt us to accept the host key. Both of these options can be set via the -o flag.
