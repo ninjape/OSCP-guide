@@ -424,7 +424,7 @@ C:\Windows\Administrator>
 ```
 {% endcode %}
 
-## Chisel
+## HTTP Tunneling with Chisel
 
 {% embed url="https://medium.com/geekculture/chisel-network-tunneling-on-steroids-a28e6273c683" %}
 
