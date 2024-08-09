@@ -95,6 +95,7 @@ kali@kali:~$ wpscan --url sandbox.local --enumerate ap,at,cb,dbe
 {% code overflow="wrap" lineNumbers="true" %}
 ```
 feroxbuster --url http://10.129.59.154 --depth 2 --wordlist /usr/share/seclists/Discovery/Web-Content/raft-small-words-lowercase.txt
+feroxbuster --url http://192.168.248.189 --depth 2 --wordlist /usr/share/wordlists/wfuzz/general/megabeast.txt 
 ```
 {% endcode %}
 
