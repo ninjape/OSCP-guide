@@ -8,6 +8,7 @@
 net user /domain ###enumerate all users in the entire domain
 net user jeff_admin /domain
 net group /domain
+net group "Sales Department" /domain
 ```
 
 ### **Modern approach**
