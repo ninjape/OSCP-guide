@@ -28,6 +28,24 @@ InfrastructureRoleOwner : DC01.corp.com
 Name : corp.com
 ```
 
+
+
+{% code title="Script which will create the full LDAP path required for enumeration" overflow="wrap" lineNumbers="true" %}
+```
+$PDC = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain().PdcRoleOwner.Name
+$DN = ([adsi]'').distinguishedName 
+$LDAP = "LDAP://$PDC/$DN"
+$LDAP
+```
+{% endcode %}
+
+{% code title="Script output showing the full LDAP path" overflow="wrap" lineNumbers="true" %}
+```
+PS C:\Users\stephanie> .\enumeration.ps1
+LDAP://DC1.corp.com/DC=corp,DC=com
+```
+{% endcode %}
+
 0x30000000 (decimal 805306368) to the filter property to enumerate all users in the domain
 
 ```
