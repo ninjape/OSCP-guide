@@ -28,7 +28,9 @@ InfrastructureRoleOwner : DC01.corp.com
 Name : corp.com
 ```
 
-
+```
+powershell -ep bypass
+```
 
 {% code title="Script which will create the full LDAP path required for enumeration" overflow="wrap" lineNumbers="true" %}
 ```
@@ -48,27 +50,31 @@ LDAP://DC1.corp.com/DC=corp,DC=com
 
 0x30000000 (decimal 805306368) to the filter property to enumerate all users in the domain
 
+{% code title="Adding a nested loop which will print each property on its own line" overflow="wrap" lineNumbers="true" %}
 ```
 $domainObj = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()
-$PDC = ($domainObj.PdcRoleOwner).Name
-$SearchString = "LDAP://"
-$SearchString += $PDC + "/"
-$DistinguishedName = "DC=$($domainObj.Name.Replace('.', ',DC='))"
-$SearchString += $DistinguishedName
-$Searcher = New-Object System.DirectoryServices.DirectorySearcher([ADSI]$SearchString)
-$objDomain = New-Object System.DirectoryServices.DirectoryEntry
-$Searcher.SearchRoot = $objDomain
-$Searcher.filter="samAccountType=805306368"
-$Searcher.FindAll()
-Foreach($obj in $Result)
+$PDC = $domainObj.PdcRoleOwner.Name
+$DN = ([adsi]'').distinguishedName 
+$LDAP = "LDAP://$PDC/$DN"
+
+$direntry = New-Object System.DirectoryServices.DirectoryEntry($LDAP)
+
+$dirsearcher = New-Object System.DirectoryServices.DirectorySearcher($direntry)
+$dirsearcher.filter="samAccountType=805306368"
+$result = $dirsearcher.FindAll()
+
+Foreach($obj in $result)
 {
-Foreach($prop in $obj.Properties)
-{
-$prop
+    Foreach($prop in $obj.Properties)
+    {
+        $prop
+    }
+
+    Write-Host "-------------------------------"
 }
-Write-Host "------------------------"
-}
+
 ```
+{% endcode %}
 
 #### Resoving Nested Groups
 
