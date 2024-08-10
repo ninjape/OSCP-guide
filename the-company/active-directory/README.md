@@ -50,7 +50,7 @@ LDAP://DC1.corp.com/DC=corp,DC=com
 
 0x30000000 (decimal 805306368) to the filter property to enumerate all users in the domain
 
-{% code title="Adding a nested loop which will print each property on its own line" overflow="wrap" lineNumbers="true" %}
+{% code title=".\enumerate.ps1" overflow="wrap" lineNumbers="true" %}
 ```
 $domainObj = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain()
 $PDC = $domainObj.PdcRoleOwner.Name
