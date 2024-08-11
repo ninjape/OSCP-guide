@@ -134,6 +134,15 @@ Get-NetComputer
 Get-NetComputer | select operatingsystem,dnshostname
 ```
 
+### **Permissions and Logged on Users**
+
+```
+Find-LocalAdminAccess
+Get-NetSession -ComputerName files04
+Get-NetSession -ComputerName files04 -Verbose
+PS C:\Tools> Get-Acl -Path HKLM:SYSTEM\CurrentControlSet\Services\LanmanServer\DefaultSecurity\ | fl
+```
+
 ### **Enumerate through Service Principal Names**
 
 While Microsoft has not documented a list of searchable SPN’s there are extensive lists available online.
