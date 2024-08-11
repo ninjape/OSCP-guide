@@ -127,7 +127,14 @@ PS C:\Tools\active_directory> Get-NetSession -ComputerName dc01
 ```
 {% endcode %}
 
-### **Enumerate thorugh Service Principal Names**
+### **Enumerating Operating Systems**
+
+```
+Get-NetComputer
+Get-NetComputer | select operatingsystem,dnshostname
+```
+
+### **Enumerate through Service Principal Names**
 
 While Microsoft has not documented a list of searchable SPN’s there are extensive lists available online.
 
