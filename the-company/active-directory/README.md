@@ -28,9 +28,11 @@ InfrastructureRoleOwner : DC01.corp.com
 Name : corp.com
 ```
 
+{% code title="Enable running scripts" overflow="wrap" lineNumbers="true" %}
 ```
 powershell -ep bypass
 ```
+{% endcode %}
 
 {% code title="Script which will create the full LDAP path required for enumeration" overflow="wrap" lineNumbers="true" %}
 ```
@@ -96,17 +98,34 @@ $obj.Properties.member
 }
 ```
 
-## **PowerView - Currently logged on users**
+## **PowerView**
 
 ```
 PS C:\Tools\active_directory> Import-Module .\PowerView.ps1
+```
 
-enumerate logged-in users with Get-NetLoggedon
+```
+Get-NetDomain
+Get-NetUser
+Get-NetUser "fred"
+Get-NetUser | select cn
+Get-NetUser | select cn,pwdlastset,lastlogon
+Get-NetUser | select cn,whencreated
+Get-NetGroup | select cn
+Get-NetGroup "Sales Department" | select member
+```
+
+{% code title="Currently logged on users" overflow="wrap" lineNumbers="true" %}
+```
 PS C:\Tools\active_directory> Get-NetLoggedon -ComputerName client251
+```
+{% endcode %}
 
-Get-NetSession will return all active sessions, in our case from the domain controller
+{% code title="Get-NetSession will return all active sessions, in our case from the domain controller" overflow="wrap" lineNumbers="true" %}
+```
 PS C:\Tools\active_directory> Get-NetSession -ComputerName dc01
 ```
+{% endcode %}
 
 ### **Enumerate thorugh Service Principal Names**
 
