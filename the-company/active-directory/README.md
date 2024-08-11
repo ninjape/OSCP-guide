@@ -96,7 +96,7 @@ $obj.Properties.member
 }
 ```
 
-### **Currently logged on users**
+## **PowerView - Currently logged on users**
 
 ```
 PS C:\Tools\active_directory> Import-Module .\PowerView.ps1
