@@ -59,6 +59,7 @@
   * [AV bypass](the-company/exploitation/av-bypass.md)
 * [Active Directory](the-company/active-directory/README.md)
   * [Active Directory Components](the-company/active-directory/active-directory-components.md)
+  * [Authentication Attacks](the-company/active-directory/authentication-attacks.md)
   * [Initial attack vectors](the-company/active-directory/initial-attack-vectors.md)
   * [Exploiting AD](the-company/active-directory/exploiting-ad.md)
   * [BloodHound](the-company/active-directory/bloodhound.md)
