@@ -101,7 +101,7 @@ Get-ChildItem -Path C:\xampp -Include *.txt,*.ini -File -Recurse -ErrorAction Si
 ```
 {% endcode %}
 
-`findstr /si password *.txt`
+`findstr /si password *.txt *.xml *.doc *.xls`
 
 Command breakdown:
 
