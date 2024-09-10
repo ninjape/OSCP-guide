@@ -171,7 +171,13 @@ Access is denied.
 ```
 {% endcode %}
 
+## Shadow Copies
 
+A Shadow Copy, also known as Volume Shadow Service (VSS) is a Microsoft backup technology that allows the creation of snapshots of files or entire volumes.
+
+To manage volume shadow copies, the Microsoft signed binary vshadow.exe is offered as part of the Windows SDK.
+
+As domain admins, we can abuse the vshadow utility to create a Shadow Copy that will allow us to extract the Active Directory Database NTDS.dit database file. Once we've obtained a copy of the database, we need the SYSTEM hive, and then we can extract every user credential offline on our local Kali machine.
 
 ## Domain controller synchronization
 
