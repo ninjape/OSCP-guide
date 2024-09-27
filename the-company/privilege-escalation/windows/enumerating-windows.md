@@ -96,12 +96,13 @@ route print
 {% code title="" overflow="wrap" lineNumbers="true" %}
 ```
 Get-ChildItem -Path C:\ -Include *.kdbx -File -Recurse -ErrorAction SilentlyContinue
+Get-ChildItem -Path C:\ -Include *.log -File -Recurse -ErrorAction SilentlyContinue
 Get-ChildItem -Path C:\xampp -Include *.txt,*.ini -File -Recurse -ErrorAction SilentlyContinue
 Get-ChildItem -Path C:\xampp -Include *.txt,*.ini -File -Recurse -ErrorAction SilentlyContinue
 ```
 {% endcode %}
 
-`findstr /si password *.txt *.xml *.doc *.xls`
+`findstr /si password *.txt *.xml *.doc *.xls *.log`
 
 Command breakdown:
 
