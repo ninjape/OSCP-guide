@@ -114,7 +114,11 @@ Command breakdown:
 
 `*.txt`: The search will cover files that have a .txt extension
 
+## Listing files and folders contained
 
+```
+tree /a /f
+```
 
 ## Patch level
 

