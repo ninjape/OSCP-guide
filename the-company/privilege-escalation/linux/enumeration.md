@@ -99,6 +99,21 @@ find / -perm -u=s -type f 2>/dev/null
 * history
 * ifconfig
 * ip route
+
+show listening ports
+
+```
+ss -tulpn
+Netid                            State                             Recv-Q                            Send-Q                                                       Local Address:Port                                                        Peer Address:Port                            Process                            
+udp                              UNCONN                            0                                 0                                                            127.0.0.53%lo:53                                                               0.0.0.0:*                                                                  
+tcp                              LISTEN                            0                                 511                                                              127.0.0.1:8000                                                             0.0.0.0:*                                                                  
+tcp                              LISTEN                            0                                 128                                                                0.0.0.0:2222                                                             0.0.0.0:*                                                                  
+tcp                              LISTEN                            0                                 4096                                                         127.0.0.53%lo:53                                                               0.0.0.0:*                                                                  
+tcp                              LISTEN                            0                                 128                                                                   [::]:2222                                                                [::]:*                                                                  
+tcp                              LISTEN                            0                                 511                                                                      *:80                                                                     *:*                                                                  
+tcp                              LISTEN                            0                                 511                                                                      *:443                                                                    *:*                   
+```
+
 * `netstat -a`: shows all listening ports and established connections.
 * `netstat -at` or `netstat -au` can also be used to list TCP or UDP protocols respectively.
 * `netstat -l`: list ports in “listening” mode. These ports are open and ready to accept incoming connections. This can be used with the “t” option to list only ports that are listening using the TCP protocol (below)
