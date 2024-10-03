@@ -54,7 +54,7 @@ smbmap -H 10.10.10.237 -R -u "%" -p "%"
 
 ### smbclient
 
-<pre data-overflow="wrap"><code>listing without a password
+<pre data-title="listing without a password" data-overflow="wrap" data-line-numbers><code>smbclient --no-pass //192.168.176.248/&#x3C;share>
 smbclient -L \\172.16.1.10\         
 smbclient -N -L //apt                         
 smbclient -U '' //apt
@@ -76,6 +76,7 @@ smblcient -U 'guest' //apt
 smblcient -U 'anonymous' //apt
 smbclient -U 'administrator' -L 10.129.88.203  ###enter blank password
 smbclient -L spookysec.local -U svc-admin
+
 Access a share
 smbclient  '\\spookysec.local\backup' -U svc-admin
 smbclient //10.10.10.100/Replication -U ""%""  #### login without a password
@@ -116,6 +117,41 @@ getting file \RunAudit.bat of size 45 as RunAudit.bat (0.8 KiloBytes/sec) (avera
 getting file \System.Data.SQLite.dll of size 363520 as System.Data.SQLite.dll (3317.8 KiloBytes/sec) (average 1198.9 KiloBytes/sec)
 getting file \System.Data.SQLite.EF6.dll of size 186880 as System.Data.SQLite.EF6.dll (356.4 KiloBytes/sec) (average 690.9 KiloBytes/sec)
 getting file \x64\SQLite.Interop.dll of size 1639936 as SQLite.Interop.dll (4411.8 KiloBytes/sec) (average 1805.3 KiloBytes/sec)
+```
+
+## Mounting a share instead of downloading everything
+
+1.  Create an empty directory to be used as the mount point. This directory can be located wherever you wish, though it’s common to use the `/mnt` directory.
+
+    ```bash
+    mkdir /mnt/smb_share
+    ```
+2.  Enter the following command to mount the SMB share, replacing _\[server-ip]_ with the IP address of your SMB server, _\[share-path]_ with the file path to your SMB share on that server, and _\[mount-point]_ with the new directory you just created.
+
+    ```bash
+    mount -t cifs //[server-ip]/[share-path] /[mount-point]
+    ```
+
+    In the example below, the SMB server’s IP is 192.0.2.17, the share’s path is SharedFiles, and the mount point is `/mnt/smb_share`.
+
+    ```bash
+    mount -t cifs //192.0.2.17/SharedFiles /mnt/smb_share
+    ```
+3. When prompted, enter the password to connect to the remote share.
+4.  If the connection is successful, you should see the remote share mounted on the mount point directory you created. To verify this, type the following command:
+
+    ```bash
+    mount -t cifs
+    ```
+
+### Unmount a Share <a href="#unmount-a-share" id="unmount-a-share"></a>
+
+You may need to unmount a share at some point. To unmount an SMB share that has been mounted using the `mount` command, you can use the `umount` command followed by the mount point of the share. The correct command is `umount`, not `unmount`.
+
+So to unmount an SMB share at the mount point `<Mount Point>`, run the following command:
+
+```bash
+umount -t cifs /<Mount Point>
 ```
 
 ## Nmap
