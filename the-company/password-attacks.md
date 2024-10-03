@@ -290,6 +290,75 @@ $keepass$*2*60*0*d74e29a727e9338717d27a7d457ba3486d20dec73a9db1a7fbc7a068c9aec6b
 ```
 {% endcode %}
 
+### kpcli
+
+{% hint style="info" %}
+[https://github.com/rebkwok/kpcli](https://github.com/rebkwok/kpcli)
+{% endhint %}
+
+
+
+Use a specific database when you have the password
+
+```
+kpcli --kdb=Database.kdbx
+Provide the master password: *************************
+
+KeePass CLI (kpcli) v3.8.1 is ready for operation.
+Type 'help' for a description of available commands.
+Type 'help <command>' for details on individual commands.
+
+kpcli:/> ls
+
+```
+
+Listing databases
+
+```
+kpcli:/> ls
+=== Groups ===
+Database/
+kpcli:/> ls Database
+=== Groups ===
+General/
+Network/
+Recycle Bin/
+Windows/
+=== Entries ===
+0. RETIRED                                                                
+1. Sample Entry                                               keepass.info
+2. Sample Entry #2                          keepass.info/help/kb/testform.
+kpcli:/> ls --group Database/Windows/emma
+=== Entries ===
+0. emma                                                                   
+kpcli:/> ls --group Database/Windows/emma --entries
+=== Entries ===
+0. emma                                             
+```
+
+```
+show Database/Windows/emma 
+
+ Path: /Database/Windows/
+Title: emma
+Uname: emma
+ Pass: SomersetVinyl1!
+  URL: 
+Notes: 
+
+```
+
+```
+kpcli:/> get Database/Windows/emma username
+emma
+kpcli:/> get Database/Windows/emma password
+SomersetVinyl1!
+kpcli:/> help
+
+```
+
+
+
 ## SSH Private key Passphrase
 
 {% code title="Using ssh2john to format the hash" overflow="wrap" lineNumbers="true" %}
