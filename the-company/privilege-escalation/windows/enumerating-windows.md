@@ -114,6 +114,16 @@ Command breakdown:
 
 `*.txt`: The search will cover files that have a .txt extension
 
+## Listing env variables
+
+{% code title="" overflow="wrap" lineNumbers="true" %}
+```
+ ls env:                                                                                                                                                                                                                       Name                           Value                                                                                    ----                           -----                                                                                    ALLUSERSPROFILE                C:\ProgramData                                                                           APPDATA                        C:\Users\emma\AppData\Roaming                                                            AppKey                         !8@aBRBYdb3!                                                                             CLIENTNAME                     kali                                                                                     CommonProgramFiles             C:\Program Files\Common Files                                                            CommonProgramFiles(x86)        C:\Program Files (x86)\Common Files                                                      CommonProgramW6432             C:\Program Files\Common Files                                                            COMPUTERNAME                   EXTERNAL                                                                                 ComSpec                        C:\Windows\system32\cmd.exe                                                              DriverData                     C:\Windows\System32\Drivers\DriverData                                                   FPS_BROWSER_APP_PROFILE_STRING Internet Explorer                                                                        FPS_BROWSER_USER_PROFILE_ST... Default                                                                                  HOMEDRIVE                      C:                                                                                       HOMEPATH                       \Users\emma                                                                              LOCALAPPDATA                   C:\Users\emma\AppData\Local                                                              LOGONSERVER                    \\EXTERNAL                                                                               NUMBER_OF_PROCESSORS           2                                                                                        OS                             Windows_NT                                                                               Path                           C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPo... PATHEXT                        .COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.CPL                               PROCESSOR_ARCHITECTURE         AMD64           
+```
+{% endcode %}
+
+
+
 ## Listing files and folders contained
 
 ```
