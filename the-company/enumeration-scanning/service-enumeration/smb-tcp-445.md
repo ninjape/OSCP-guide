@@ -121,6 +121,12 @@ getting file \x64\SQLite.Interop.dll of size 1639936 as SQLite.Interop.dll (4411
 
 ## Mounting a share instead of downloading everything
 
+{% hint style="info" %}
+[https://www.linode.com/docs/guides/linux-mount-smb-share/#unmount-a-share](https://www.linode.com/docs/guides/linux-mount-smb-share/#unmount-a-share)
+{% endhint %}
+
+
+
 1.  Create an empty directory to be used as the mount point. This directory can be located wherever you wish, though it’s common to use the `/mnt` directory.
 
     ```bash
