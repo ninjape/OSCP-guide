@@ -146,6 +146,19 @@ Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*" |
 ```
 {% endcode %}
 
+## Git
+
+Check if git is running and if there are any git repos.
+
+```
+git show
+git status
+git log
+git show <commit-id>
+```
+
+
+
 ## Processes
 
 {% code title="Get running processes" overflow="wrap" lineNumbers="true" %}
