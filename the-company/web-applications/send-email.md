@@ -12,6 +12,8 @@ Phishing for access
 
 Now, let's copy the Windows Library code we previously used in the Client-Side Attacks Module, paste it into Visual Studio Code, and check that the IP address points to our Kali machine.
 
+The filename is: config.Library-ms
+
 {% code title="Windows Library code for connecting to our WebDAV Share" overflow="wrap" lineNumbers="true" %}
 ```
 <?xml version="1.0" encoding="UTF-8"?>
