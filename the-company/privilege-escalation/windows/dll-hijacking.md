@@ -146,6 +146,34 @@ The command completed successfully.
 ```
 {% endcode %}
 
+## **DLL on Relia challenge**
+
+1. Copy .exe file to the helper windows VM Windows machine with local administrative rights.
+2. Get Procmon64.exe&#x20;
+3. Create services for the executables sc.exe in cmd
+
+```
+ create Scheduler binpath=C:\Users\offsec\Desktop\scheduler.exe
+```
+
+
+
+4. Start service&#x20;
+
+```
+sc.exe start Scheduler
+```
+
+
+
+5. Filter -> Filter -> Process Name -is -\<scheduler.exe> -then Include Result -is -NAME NOT FOUND -then Include
+
+
+
+
+
+##
+
 ## **Introduction to DLL Files**
 
 A DLL Hijacking scenario consists of replacing a legitimate DLL file with a malicious DLL file that will be called by the executable and run. By this point, you may have an idea about the specific conditions required for a successful DLL hijacking attack. These can be summarized as;
