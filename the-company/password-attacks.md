@@ -318,6 +318,7 @@ Listing databases
 kpcli:/> ls
 === Groups ===
 Database/
+ls Database/*
 kpcli:/> ls Database
 === Groups ===
 General/
