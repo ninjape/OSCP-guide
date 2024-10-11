@@ -21,7 +21,7 @@ sudo nmap -p80 --script=http-enum 192.168.50.20
 
 {% code title="-b for blacklist and made it empty" overflow="wrap" lineNumbers="true" %}
 ```
-gobuster dir -u https://<IP>/ -w /usr/share/seclists/Discovery/Web-Content/common.txt -s '200,204,301,302,307,403,500' -e -b ''
+gobuster dir -u https://<IP>/ -w /usr/share/seclists/Discovery/Web-Content/common.txt -s '200,204,301,302,307,403,500' -e -b '' -x aspx,config,pdf
 ```
 {% endcode %}
 
