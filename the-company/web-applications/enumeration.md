@@ -94,8 +94,16 @@ kali@kali:~$ wpscan --url sandbox.local --enumerate ap,at,cb,dbe
 
 {% code overflow="wrap" lineNumbers="true" %}
 ```
+feroxbuster --url http://192.168.213.141:81 --depth 2 --wordlist /usr/share/wordlists/seclists/Discovery/Web-Content/directory-list-2.3-medium.txt --scan-dir-listings 
+big.txt
 feroxbuster --url http://10.129.59.154 --depth 2 --wordlist /usr/share/seclists/Discovery/Web-Content/raft-small-words-lowercase.txt
 feroxbuster --url http://192.168.248.189 --depth 2 --wordlist /usr/share/wordlists/wfuzz/general/megabeast.txt 
+```
+{% endcode %}
+
+{% code title="Extensions to use when scanning" %}
+```
+aspx,pdf,php,html,txt,js,dbx,id_rsa,kdbx,asp,aspx
 ```
 {% endcode %}
 
