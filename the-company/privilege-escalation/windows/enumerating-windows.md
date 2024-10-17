@@ -157,6 +157,57 @@ git log
 git show <commit-id>
 ```
 
+Download whole git locally
+
+```
+wget -mirror -I .git http://192.168.190.144/.git
+```
+
+{% code title="Found deleted git files" %}
+```
+git status                                                                                                                               
+On branch main
+Your branch is ahead of 'origin/main' by 1 commit.
+  (use "git push" to publish your local commits)
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        deleted:    README.md
+        deleted:    api/export.php
+        deleted:    api/index.php
+        deleted:    api/order.php
+        deleted:    configuration/database.php
+        deleted:    orders/search.php
+        deleted:    robots.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+{% endcode %}
+
+Recover git files
+
+```
+git checkout -- .    
+git restore .
+```
+
+{% code title="recovered deleted files" %}
+```
+ls -lah
+total 32K
+drwxr-xr-x  6 kali kali 4.0K Oct 16 09:11 .
+drwxr-xr-x  4 kali kali 4.0K Oct 16 09:09 ..
+drwxr-xr-x  2 kali kali 4.0K Oct 16 09:11 api
+drwxr-xr-x  2 kali kali 4.0K Oct 16 09:11 configuration
+drwxr-xr-x 11 kali kali 4.0K Oct 16 09:11 .git
+drwxr-xr-x  2 kali kali 4.0K Oct 16 09:11 orders
+-rw-r--r--  1 kali kali   25 Oct 16 09:11 README.md
+-rw-r--r--  1 kali kali   22 Oct 16 09:11 robots.txt
+
+```
+{% endcode %}
+
 
 
 ## Processes
