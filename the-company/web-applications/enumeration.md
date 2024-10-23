@@ -2,9 +2,15 @@
 
 ##
 
-{% hint style="info" %}
-check robots.txt
-{% endhint %}
+## Hints
+
+* interact with the website as a normal user from the browser and look for interesting stuff
+* view page source
+* use developer tools, inspector, debugger(firefox)/sources(chrome)
+* check robots.txt
+* check favicon icon
+* check sitemap.xml
+* check headers
 
 ## Nmap
 
@@ -85,18 +91,15 @@ dirsearch -u http://<IP>
 kali@kali:~$ wpscan --url sandbox.local --enumerate ap,at,cb,dbe
 ```
 
+## whatweb
+
 * ```
   whatweb -a 1 http://10.10.10.8 ## stealthy
   whatweb -a 3 http://10.10.10.8 ## aggresive
 
   ```
-* interact with the website as a normal user from the browser and look for interesting stuff
-* view page source
-* use developer tools, inspector, debugger(firefox)/sources(chrome)
-* check robots.txt
-* check favicon icon
-* check sitemap.xml
-* check headers
+
+##
 
 ## feroxbuster
 
