@@ -69,6 +69,14 @@ proxychains gobuster dir --proxy socks5://127.0.0.1:1080 --url http://172.16.1.1
 
 * dirb http://sandbox.local
 
+## Dirsearch
+
+```
+dirsearch -u http://<IP>
+```
+
+
+
 ## Wpscan
 
 * wpsn - wordpress vulnerability scanner
